@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="key_height">54dp</dimen>
+    <dimen name="key_margin">3dp</dimen>
+    <dimen name="key_corner_radius">6dp</dimen>
+</resources>

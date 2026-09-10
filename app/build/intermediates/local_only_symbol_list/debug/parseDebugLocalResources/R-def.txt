@@ -1,0 +1,37 @@
+R_DEF: Internal format may change without notice
+local
+color accent_blue
+color accent_green
+color accent_orange
+color accent_purple
+color bg_dark
+color key_bg_active
+color key_bg_dark
+color keyboard_bg_dark
+color text_hint
+color text_primary
+color text_secondary
+dimen key_corner_radius
+dimen key_height
+dimen key_margin
+drawable key_background
+id btn_back_to_keyboard
+id btn_enable_keyboard
+id btn_select_keyboard
+id edit_test_input
+id emoji_container
+id emoji_recycler
+id keyboard_view
+id switch_popup
+id switch_sound
+id switch_vibrate
+id tv_ime_status
+layout activity_main
+layout keyboard_container
+string app_name
+string keyboard_service_name
+string subtype_en_US
+style Theme.CustomKeyboard
+xml keyboard_qwerty
+xml keyboard_symbols
+xml method

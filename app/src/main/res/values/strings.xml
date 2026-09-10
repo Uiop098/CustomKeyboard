@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Custom Keyboard</string>
+    <string name="keyboard_service_name">Custom Keyboard IME</string>
+    <string name="subtype_en_US">English (US)</string>
+</resources>
