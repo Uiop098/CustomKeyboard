@@ -1,30 +1,48 @@
-# Custom Keyboard Android Project
+# ⌨️ CustomKeyboard — Android Input Method (IME)
 
-A modern, highly customizable on-screen keyboard for Android featuring sound feedback, haptic vibration, themes, and emoji support.
+A modern, lightweight, highly customizable on-screen soft keyboard for Android built with Kotlin and the Android InputMethodService API.
 
-## 🚀 How to Build the APK
+![Platform](https://img.shields.io/badge/Platform-Android%207.0%2B%20(API%2024%2B)-green)
+![Language](https://img.shields.io/badge/Language-Kotlin-purple)
+![License](https://img.shields.io/badge/License-MIT-blue)
+
+---
+
+## 🚀 Features
+
+- **Full QWERTY Keyboard:** Standard alphanumeric layout with secondary long-press symbol characters.
+- **🔣 Numeric & Symbol Pads:** Dedicated numeric keypad and comprehensive punctuation screens.
+- **🔊 Sound & Haptic Feedback:** Mechanical click sound effects on keypress and haptic vibration feedback.
+- **🎨 Theme Customization:** Dark, Light, Cyberpunk, and Minimalist color palettes.
+- **😀 Emoji Support:** Integrated emoji keyboard category selector.
+- **⚡ Battery & Memory Optimized:** Native Android Service implementation with minimal memory footprint and zero background battery drain.
+
+---
+
+## 🛠️ Build & Installation
 
 ### Option 1: Android Studio (Recommended)
-1. Download and extract `CustomKeyboard.zip`.
-2. Open Android Studio and select **Open**, then choose the extracted folder.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Uiop098/CustomKeyboard.git
+   ```
+2. Open the project in **Android Studio**.
 3. Allow Gradle to sync dependencies.
-4. Click **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
-5. The generated `app-debug.apk` will be located in `app/build/outputs/apk/debug/`.
-6. Transfer `app-debug.apk` to your Android phone via USB, Google Drive, or email, then tap to install!
+4. Select **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
+5. The output APK will be located at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ### Option 2: Command Line (Gradle)
 ```bash
-chmod +x gradlew
 ./gradlew assembleDebug
 ```
 
-### Option 3: GitHub Actions (No Local Setup Required)
-1. Push this project to your GitHub repository.
-2. The included `.github/workflows/build.yml` will automatically build the APK.
-3. Download the built APK directly from the **Actions** tab artifacts!
+### Enabling the Keyboard on Android
+1. Install the generated APK on your device.
+2. Go to **Settings > System > Languages & Input > On-screen Keyboard**.
+3. Enable **Custom Keyboard** and select it as your default input method.
 
-## 📲 How to Enable on Android
-1. Open the **Custom Keyboard** app on your phone.
-2. Tap **Step 1: Enable in Settings** and toggle **Custom Keyboard IME** to ON.
-3. Tap **Step 2: Switch Input Method** and choose **Custom Keyboard**.
-4. Test typing in any messaging app, notes, or browser!
+---
+
+## 📜 License
+
+MIT License. Developed by **Uiop098**.
