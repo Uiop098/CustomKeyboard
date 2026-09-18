@@ -19,7 +19,7 @@
     </Row>
 
     <Row>
-        <Key android:codes="64" android:keyLabel="@" android:keyEdgeFlags="left" />
+        <Key android:codes="64" android:keyLabel="\@" android:keyEdgeFlags="left" />
         <Key android:codes="35" android:keyLabel="#" />
         <Key android:codes="36" android:keyLabel="$" />
         <Key android:codes="37" android:keyLabel="%" />
