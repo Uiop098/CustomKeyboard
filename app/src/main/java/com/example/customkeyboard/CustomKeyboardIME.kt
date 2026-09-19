@@ -122,6 +122,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 keyboardView.invalidateAllKeys()
             }
             -200 -> { // '=\<' navigation key action
+                ic.commitText("=<", 1)
             }
             -100 -> { // Toggle Emoji Window
                 toggleEmojiPicker(true)
