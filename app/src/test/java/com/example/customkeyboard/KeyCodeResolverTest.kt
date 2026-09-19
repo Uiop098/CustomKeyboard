@@ -9,6 +9,7 @@ class KeyCodeResolverTest {
     @Test
     fun actionCodesReturnNull() {
         assertNull(charForCode(-100))
+        assertNull(charForCode(-200)) // <= symbols
         assertNull(charForCode(-5)) // delete
         assertNull(charForCode(-4)) // done
         assertNull(charForCode(-3)) // cancel

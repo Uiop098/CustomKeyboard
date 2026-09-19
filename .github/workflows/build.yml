@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  checks:
-    name: Lint + Unit Tests
+  verify_and_build:
+    name: Lint, Test, and Build
     runs-on: ubuntu-latest
 
     steps:
@@ -21,38 +21,29 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+        cache: 'gradle'
+
+    - name: Gradle Build Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches/build-cache-1
+          .gradle
+        key: ${{ runner.os }}-gradle-build-cache-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-build-cache-
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
     - name: Run Lint
-      run: ./gradlew lintDebug --stacktrace
+      run: ./gradlew lintDebug --build-cache --parallel --stacktrace
 
     - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest --stacktrace
-
-  build:
-    name: Build Debug APK
-    needs: checks
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: ./gradlew testDebugUnitTest --build-cache --parallel --stacktrace
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --build-cache --parallel --stacktrace
 
     - name: Upload Debug APK Artifact
       uses: actions/upload-artifact@v4
