@@ -10,7 +10,7 @@ import android.os.Build
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +33,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private var isCaps = false
     private var isSymbols = false
     private var isEmojiShowing = false
-    private var emojiContainer: FrameLayout? = null
+    private var emojiContainer: LinearLayout? = null
 
     override fun onCreate() {
         super.onCreate()
