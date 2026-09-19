@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 /** Maps a key code to the text it commits, or null for action/control keys. */
 fun charForCode(code: Int): String? = when (code) {
-    -100, Keyboard.KEYCODE_DELETE, Keyboard.KEYCODE_DONE, Keyboard.KEYCODE_CANCEL,
+    -100, -200, Keyboard.KEYCODE_DELETE, Keyboard.KEYCODE_DONE, Keyboard.KEYCODE_CANCEL,
     Keyboard.KEYCODE_MODE_CHANGE, Keyboard.KEYCODE_SHIFT, 0 -> null
     else -> code.toChar().toString()
 }
@@ -34,6 +34,8 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private var isSymbols = false
     private var isEmojiShowing = false
     private var emojiContainer: LinearLayout? = null
+
+    private var lastPlayTime = 0L
 
     override fun onCreate() {
         super.onCreate()
@@ -89,13 +91,19 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
         val ic: InputConnection = currentInputConnection ?: return
-        playFeedback()
+        
+        val now = System.currentTimeMillis()
+        if (now - lastPlayTime > 50) {
+            playFeedback()
+            lastPlayTime = now
+        }
 
         when (primaryCode) {
             Keyboard.KEYCODE_DELETE -> {
                 val selectedText = ic.getSelectedText(0)
                 if (selectedText.isNullOrEmpty()) {
-                    ic.deleteSurroundingText(1, 0)
+                    ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DEL))
+                    ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_DEL))
                 } else {
                     ic.commitText("", 1)
                 }
@@ -113,7 +121,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 keyboardView.keyboard = if (isSymbols) symbolsKeyboard else qwertyKeyboard
                 keyboardView.invalidateAllKeys()
             }
-            -3 -> { // '=<' key on the symbols row: insert both characters
+            -200 -> { // '=\<' navigation key action
                 ic.commitText("=<", 1)
             }
             -100 -> { // Toggle Emoji Window
@@ -127,6 +135,11 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                     text
                 }
                 ic.commitText(out, 1)
+                if (isCaps) {
+                    isCaps = false
+                    qwertyKeyboard.isShifted = false
+                    keyboardView.invalidateAllKeys()
+                }
             }
         }
     }
