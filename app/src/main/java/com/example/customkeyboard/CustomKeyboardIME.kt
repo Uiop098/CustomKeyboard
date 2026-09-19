@@ -113,7 +113,8 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 keyboardView.keyboard = if (isSymbols) symbolsKeyboard else qwertyKeyboard
                 keyboardView.invalidateAllKeys()
             }
-            -3 -> { // '=<' navigation key: intentionally ignored
+            -3 -> { // '=<' key on the symbols row: insert both characters
+                ic.commitText("=<", 1)
             }
             -100 -> { // Toggle Emoji Window
                 toggleEmojiPicker(true)
