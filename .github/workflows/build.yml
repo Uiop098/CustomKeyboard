@@ -13,7 +13,7 @@ permissions:
 jobs:
   checks:
     name: Lint + Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout Repository
@@ -40,7 +40,7 @@ jobs:
   build:
     name: Build Debug APK
     needs: checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout Repository
@@ -70,7 +70,7 @@ jobs:
   instrumented:
     name: Instrumented Smoke Test
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout Repository
