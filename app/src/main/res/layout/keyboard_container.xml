@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/keyboard_bg_dark">
+    android:layout_height="wrap_content">
 
     <android.inputmethodservice.KeyboardView
         android:id="@+id/keyboard_view"
@@ -33,7 +32,7 @@
                 android:id="@+id/btn_back_to_keyboard"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
-                android:text="ABC"
+                android:text="@string/label_abc"
                 android:textSize="12sp"
                 android:backgroundTint="@color/key_bg_dark" />
 
@@ -42,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Emojis"
+                android:text="@string/label_emojis"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
         </LinearLayout>

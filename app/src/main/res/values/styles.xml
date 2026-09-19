@@ -1,6 +1,7 @@
 <resources>
     <style name="Theme.CustomKeyboard" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/accent_blue</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
         <item name="android:statusBarColor">@color/bg_dark</item>
     </style>
 </resources>

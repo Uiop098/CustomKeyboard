@@ -9,7 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.customkeyboard.Prefs
+import com.example.customkeyboard.data.Prefs
 import com.example.customkeyboard.R
 import com.example.customkeyboard.util.CrashLogger
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         // If a crash was captured on a previous run, surface it so it can be diagnosed.
         val crashLog = CrashLogger.readLog(this)
         if (crashLog.isNotEmpty()) {
-            crashBanner.text = "Last crash:\n$crashLog"
+            crashBanner.text = getString(R.string.crash_last_line, crashLog)
             crashBanner.visibility = TextView.VISIBLE
             crashClear.visibility = Button.VISIBLE
         }
@@ -93,10 +93,10 @@ class MainActivity : AppCompatActivity() {
 
             val statusText = findViewById<TextView>(R.id.tv_ime_status)
             if (isEnabled) {
-                statusText.text = "Keyboard Status: ENABLED (Ready to type)"
+                statusText.text = getString(R.string.ime_status_enabled)
                 statusText.setTextColor(getColor(R.color.accent_green))
             } else {
-                statusText.text = "Keyboard Status: NOT ENABLED (Tap Step 1 above)"
+                statusText.text = getString(R.string.ime_status_not_enabled)
                 statusText.setTextColor(getColor(R.color.accent_orange))
             }
         } catch (e: Exception) {

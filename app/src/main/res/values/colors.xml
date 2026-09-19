@@ -3,7 +3,6 @@
     <color name="bg_dark">#0F172A</color>
     <color name="keyboard_bg_dark">#1E293B</color>
     <color name="key_bg_dark">#334155</color>
-    <color name="key_bg_active">#475569</color>
     <color name="text_primary">#F8FAFC</color>
     <color name="text_secondary">#94A3B8</color>
     <color name="text_hint">#64748B</color>

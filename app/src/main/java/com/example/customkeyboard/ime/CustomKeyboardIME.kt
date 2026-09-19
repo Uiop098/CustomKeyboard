@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customkeyboard.R
+import com.example.customkeyboard.Keyboard_Engine.KeyboardEngine
 import com.example.customkeyboard.data.Prefs
 import com.example.customkeyboard.util.SoundManager
 import com.example.customkeyboard.ui.EmojiAdapter
@@ -26,16 +27,15 @@ fun charForCode(code: Int): String? = when (code) {
     else -> code.toChar().toString()
 }
 
+@Suppress("DEPRECATION")
 class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionListener {
 
     private lateinit var keyboardView: KeyboardView
-    private lateinit var qwertyKeyboard: Keyboard
-    private lateinit var symbolsKeyboard: Keyboard
+    private lateinit var keyboardEngine: KeyboardEngine
     private lateinit var prefs: Prefs
     private lateinit var soundManager: SoundManager
 
     private var isCaps = false
-    private var isSymbols = false
     private var isEmojiShowing = false
     private var emojiContainer: LinearLayout? = null
 
@@ -53,7 +53,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         } catch (t: Throwable) {
             android.util.Log.e("CustomKeyboardIME", "onCreateInputView failed", t)
             android.widget.TextView(this).apply {
-                text = "Keyboard failed to load: ${t.javaClass.simpleName}"
+                text = getString(R.string.keyboard_load_failed, t.javaClass.simpleName)
                 setTextColor(0xFFF8FAFC.toInt())
                 textSize = 14f
                 gravity = android.view.Gravity.CENTER
@@ -68,10 +68,9 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyboardView = root.findViewById(R.id.keyboard_view)
         emojiContainer = root.findViewById(R.id.emoji_container)
 
-        qwertyKeyboard = Keyboard(this, R.xml.keyboard_qwerty)
-        symbolsKeyboard = Keyboard(this, R.xml.keyboard_symbols)
+        keyboardEngine = KeyboardEngine(this, keyboardView)
+        keyboardEngine.switchTo(KeyboardEngine.LayoutMode.QWERTY)
 
-        keyboardView.keyboard = qwertyKeyboard
         keyboardView.setOnKeyboardActionListener(this)
         keyboardView.isPreviewEnabled = prefs.isPopupPreviewEnabled
 
@@ -114,16 +113,14 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
             }
             Keyboard.KEYCODE_SHIFT -> {
                 isCaps = !isCaps
-                qwertyKeyboard.isShifted = isCaps
+                keyboardEngine.qwertyKeyboard.isShifted = isCaps
                 keyboardView.invalidateAllKeys()
             }
             Keyboard.KEYCODE_DONE -> {
                 ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
             }
             -2 -> { // Switch between QWERTY and Symbols
-                isSymbols = !isSymbols
-                keyboardView.keyboard = if (isSymbols) symbolsKeyboard else qwertyKeyboard
-                keyboardView.invalidateAllKeys()
+                keyboardEngine.toggleSymbols()
             }
             -200 -> { // '=\<' navigation key action
                 ic.commitText("=<", 1)
@@ -141,7 +138,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 ic.commitText(out, 1)
                 if (isCaps) {
                     isCaps = false
-                    qwertyKeyboard.isShifted = false
+                    keyboardEngine.qwertyKeyboard.isShifted = false
                     keyboardView.invalidateAllKeys()
                 }
             }

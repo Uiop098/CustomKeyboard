@@ -1,5 +1,6 @@
 package com.example.customkeyboard
 
+import com.example.customkeyboard.ime.charForCode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

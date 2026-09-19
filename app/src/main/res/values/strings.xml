@@ -1,5 +1,21 @@
 <resources>
     <string name="app_name">Custom Keyboard</string>
     <string name="keyboard_service_name">Custom Keyboard IME</string>
-    <string name="subtype_en_US">English (US)</string>
+    <string name="ime_status_checking">Keyboard Status: Checking…</string>
+    <string name="setup_steps">Setup Steps</string>
+    <string name="clear_crash_report">Clear crash report</string>
+    <string name="step1_enable">Step 1: Enable in Settings</string>
+    <string name="step2_switch">Step 2: Switch Input Method</string>
+    <string name="test_scratchpad">Test Scratchpad</string>
+    <string name="edit_hint">Tap here to test your custom keyboard…</string>
+    <string name="preferences">Preferences</string>
+    <string name="keypress_sound">Keypress Sound</string>
+    <string name="haptic_vibration">Haptic Vibration</string>
+    <string name="key_popup_preview">Key Popup Preview</string>
+    <string name="keyboard_load_failed">Keyboard failed to load: %1$s</string>
+    <string name="crash_last_line">Last crash:\n%1$s</string>
+    <string name="ime_status_enabled">Keyboard Status: ENABLED (Ready to type)</string>
+    <string name="ime_status_not_enabled">Keyboard Status: NOT ENABLED (Tap Step 1 above)</string>
+    <string name="label_abc">ABC</string>
+    <string name="label_emojis">Emojis</string>
 </resources>

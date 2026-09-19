@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dark"
     android:fillViewport="true">
 
     <LinearLayout
@@ -27,7 +26,7 @@
             android:layout_marginTop="8dp"
             android:padding="12dp"
             android:background="@drawable/bg_status_card"
-            android:text="Keyboard Status: Checking..."
+            android:text="@string/ime_status_checking"
             android:textColor="@color/accent_orange"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -36,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Setup Steps"
+            android:text="@string/setup_steps"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:textAllCaps="true" />
@@ -58,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Clear crash report"
+            android:text="@string/clear_crash_report"
             android:textSize="12sp"
             android:backgroundTint="@color/accent_orange"
             android:visibility="gone" />
@@ -68,7 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Step 1: Enable in Settings"
+            android:text="@string/step1_enable"
             android:backgroundTint="@color/accent_blue" />
 
         <Button
@@ -76,14 +75,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Step 2: Switch Input Method"
+            android:text="@string/step2_switch"
             android:backgroundTint="@color/accent_purple" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Test Scratchpad"
+            android:text="@string/test_scratchpad"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:textAllCaps="true" />
@@ -93,9 +92,11 @@
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:layout_marginTop="8dp"
+            android:autofillHints="text"
             android:background="@drawable/bg_edit_text"
             android:gravity="top|start"
-            android:hint="Tap here to test your custom keyboard..."
+            android:hint="@string/edit_hint"
+            android:inputType="textMultiLine"
             android:padding="16dp"
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint" />
@@ -104,7 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Preferences"
+            android:text="@string/preferences"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"
             android:textAllCaps="true" />
@@ -114,7 +115,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Keypress Sound"
+            android:text="@string/keypress_sound"
             android:textColor="@color/text_primary" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
@@ -122,7 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Haptic Vibration"
+            android:text="@string/haptic_vibration"
             android:textColor="@color/text_primary" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
@@ -130,7 +131,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Key Popup Preview"
+            android:text="@string/key_popup_preview"
             android:textColor="@color/text_primary" />
 
     </LinearLayout>
