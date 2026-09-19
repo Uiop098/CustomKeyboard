@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CustomKeyboard - UI Themes Prototype</title>
+<style>
+    :root {
+        --bg-color: #ECEFF1;
+        --key-bg: #FFFFFF;
+        --key-text: #263238;
+        --key-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        --accent-color: #37474F;
+        --accent-text: #FFFFFF;
+        
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    [data-theme="dark"] {
+        --bg-color: #1a1a1b;
+        --key-bg: #2d2d2f;
+        --key-text: #ffffff;
+        --key-shadow: 0 1px 1px rgba(0,0,0,0.5);
+        --accent-color: #4a4a4d;
+        --accent-text: #ffffff;
+    }
+
+    body {
+        margin: 0;
+        background-color: #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 2rem;
+    }
+
+    .device {
+        width: 360px;
+        height: 640px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border: 8px solid #333;
+    }
+
+    .screen {
+        flex: 1;
+        padding: 20px;
+        background: #fafafa;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+        outline: none;
+    }
+    
+    .input-field:focus {
+        border-color: #2196F3;
+    }
+
+    /* Keyboard Container */
+    .keyboard {
+        background-color: var(--bg-color);
+        padding: 8px;
+        padding-bottom: 24px;
+        transition: background-color 0.3s;
+    }
+
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+    }
+
+    .icon-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 15px;
+        background: var(--key-bg);
+        box-shadow: var(--key-shadow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--key-text);
+        font-size: 14px;
+    }
+
+    /* Key Rows */
+    .row {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-bottom: 8px;
+    }
+
+    .row:nth-child(3) {
+        padding: 0 16px;
+    }
+
+    .key {
+        background-color: var(--key-bg);
+        color: var(--key-text);
+        box-shadow: var(--key-shadow);
+        flex: 1;
+        height: 48px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 400;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.1s;
+    }
+
+    .key:active {
+        background-color: #e0e0e0;
+        transform: scale(0.95);
+    }
+
+    .key.special {
+        background-color: var(--accent-color);
+        color: var(--accent-text);
+        flex: 1.5;
+        font-size: 14px;
+    }
+
+    .key.space {
+        flex: 4;
+    }
+
+    [data-theme="dark"] .key:active {
+        background-color: #444;
+    }
+
+    .tweaks {
+        margin-top: 30px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .tweaks label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="device" id="device">
+    <div class="screen">
+        <input type="text" class="input-field" placeholder="Type a message..." value="Hello World|">
+    </div>
+    
+    <div class="keyboard" id="keyboard">
+        <div class="toolbar">
+            <div class="icon-btn">☺</div>
+            <div class="icon-btn">📋</div>
+            <div class="icon-btn">⚙</div>
+            <div class="icon-btn">🌐</div>
+        </div>
+        
+        <div class="row">
+            <div class="key">q</div><div class="key">w</div><div class="key">e</div><div class="key">r</div><div class="key">t</div><div class="key">y</div><div class="key">u</div><div class="key">i</div><div class="key">o</div><div class="key">p</div>
+        </div>
+        <div class="row">
+            <div class="key">a</div><div class="key">s</div><div class="key">d</div><div class="key">f</div><div class="key">g</div><div class="key">h</div><div class="key">j</div><div class="key">k</div><div class="key">l</div>
+        </div>
+        <div class="row">
+            <div class="key special">⇧</div><div class="key">z</div><div class="key">x</div><div class="key">c</div><div class="key">v</div><div class="key">b</div><div class="key">n</div><div class="key">m</div><div class="key special">⌫</div>
+        </div>
+        <div class="row">
+            <div class="key special">?123</div>
+            <div class="key">,</div>
+            <div class="key space">space</div>
+            <div class="key">.</div>
+            <div class="key special">↵</div>
+        </div>
+    </div>
+</div>
+
+<div class="tweaks">
+    <h3>UI Tweaks Engine</h3>
+    <label><input type="checkbox" id="theme-toggle"> Dark Mode</label>
+    <label><input type="checkbox" id="border-toggle" checked> Key Borders</label>
+</div>
+
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const borderToggle = document.getElementById('border-toggle');
+    const device = document.getElementById('device');
+
+    themeToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            device.setAttribute('data-theme', 'dark');
+        } else {
+            device.removeAttribute('data-theme');
+        }
+    });
+
+    borderToggle.addEventListener('change', (e) => {
+        const keys = document.querySelectorAll('.key, .icon-btn');
+        if (e.target.checked) {
+            keys.forEach(k => k.style.boxShadow = 'var(--key-shadow)');
+        } else {
+            keys.forEach(k => k.style.boxShadow = 'none');
+        }
+    });
+</script>
+
+</body>
+</html>
