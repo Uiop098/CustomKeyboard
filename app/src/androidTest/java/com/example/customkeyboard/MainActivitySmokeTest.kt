@@ -3,6 +3,7 @@ package com.example.customkeyboard
 import android.widget.Button
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.customkeyboard.ui.MainActivity
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith

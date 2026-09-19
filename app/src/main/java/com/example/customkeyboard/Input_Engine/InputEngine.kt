@@ -1,24 +1,15 @@
 package com.example.customkeyboard.Input_Engine
 
-/** Bridges keyboard events with the active text field's InputConnection. */
-interface InputEngine {
+import android.view.inputmethod.InputConnection
 
-    /** Commits [text] to the focused field. */
-    fun commitText(text: String)
+class InputEngine {
+    // Goose (uiop098-3) implementation
+    fun handleTapTyping(ic: InputConnection, text: String, isCaps: Boolean) {
+        val out = if (text.isNotEmpty() && Character.isLetter(text[0]) && isCaps) text.uppercase() else text
+        ic.commitText(out, 1)
+    }
 
-    /** Deletes [count] characters before the cursor. */
-    fun deleteText(count: Int)
-
-    /** Moves the cursor relative to the current position. */
-    fun moveCursor(delta: Int)
-
-    /** Performs an action like Enter, Done, or Search. */
-    fun performAction(action: Action)
-
-    /** Checks the composed text for spelling/grammar issues before commit. */
-    fun grammarCheck(text: String): List<Issue>
-
-    data class Issue(val start: Int, val end: Int, val suggestion: String)
-
-    enum class Action { ENTER, DONE, SEARCH, NEXT, SEND }
+    fun handleAutocorrectStub(word: String): String {
+        return word // Autocorrect passes through currently
+    }
 }

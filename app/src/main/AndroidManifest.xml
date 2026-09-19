@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".App"
+        android:name=".core.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -15,7 +15,7 @@
 
         <!-- Main Test & Configuration Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -26,7 +26,7 @@
 
         <!-- Custom Keyboard IME Service -->
         <service
-            android:name=".CustomKeyboardIME"
+            android:name=".ime.CustomKeyboardIME"
             android:label="@string/keyboard_service_name"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true">
