@@ -1,6 +1,7 @@
 package com.example.customkeyboard
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.inputmethodservice.InputMethodService
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
@@ -155,7 +156,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
             soundManager.playKeyClick()
         }
         if (prefs.isVibrationEnabled) {
-            val vibrator = getSystemService(VIBRATOR_SERVICE) as? Vibrator
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator?.vibrate(VibrationEffect.createOneShot(prefs.vibrationDurationMs, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {

@@ -1,5 +1,6 @@
 package com.example.customkeyboard
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         // Open input method picker dialog
         btnSelect.setOnClickListener {
             try {
-                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showInputMethodPicker()
             } catch (e: Exception) {
                 Log.e("MainActivity", "showInputMethodPicker failed", e)
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateKeyboardStatus() {
         try {
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             val enabledList = imm.enabledInputMethodList
             val isEnabled = enabledList.any { it.packageName == packageName }
 
