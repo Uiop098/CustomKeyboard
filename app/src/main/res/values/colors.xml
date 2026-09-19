@@ -11,4 +11,5 @@
     <color name="accent_purple">#8B5CF6</color>
     <color name="accent_green">#10B981</color>
     <color name="accent_orange">#F59E0B</color>
+    <color name="crash_bg">#7F1D1D</color>
 </resources>

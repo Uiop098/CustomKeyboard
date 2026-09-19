@@ -41,6 +41,28 @@
             android:textSize="13sp"
             android:textAllCaps="true" />
 
+        <TextView
+            android:id="@+id/tv_crash_report"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:padding="10dp"
+            android:background="@color/crash_bg"
+            android:textColor="@color/text_primary"
+            android:textSize="11sp"
+            android:visibility="gone"
+            android:textIsSelectable="true" />
+
+        <Button
+            android:id="@+id/btn_clear_crash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Clear crash report"
+            android:textSize="12sp"
+            android:backgroundTint="@color/accent_orange"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/btn_enable_keyboard"
             android:layout_width="match_parent"

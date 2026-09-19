@@ -1,5 +1,6 @@
 package com.example.customkeyboard
 
+import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
@@ -10,8 +11,16 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+
+/** Maps a key code to the text it commits, or null for action/control keys. */
+fun charForCode(code: Int): String? = when (code) {
+    -100, Keyboard.KEYCODE_DELETE, Keyboard.KEYCODE_DONE, Keyboard.KEYCODE_CANCEL,
+    Keyboard.KEYCODE_MODE_CHANGE, Keyboard.KEYCODE_SHIFT, 0 -> null
+    else -> code.toChar().toString()
+}
 
 class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionListener {
 
@@ -33,6 +42,22 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     }
 
     override fun onCreateInputView(): View {
+        return try {
+            createInputView()
+        } catch (t: Throwable) {
+            android.util.Log.e("CustomKeyboardIME", "onCreateInputView failed", t)
+            TextView(this).apply {
+                text = "Keyboard failed to load: ${t.javaClass.simpleName}"
+                setTextColor(0xFFF8FAFC.toInt())
+                textSize = 14f
+                gravity = android.view.Gravity.CENTER
+                setPadding(24, 24, 24, 24)
+            }
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    private fun createInputView(): View {
         val root = layoutInflater.inflate(R.layout.keyboard_container, null)
         keyboardView = root.findViewById(R.id.keyboard_view)
         emojiContainer = root.findViewById(R.id.emoji_container)
@@ -88,15 +113,19 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 keyboardView.keyboard = if (isSymbols) symbolsKeyboard else qwertyKeyboard
                 keyboardView.invalidateAllKeys()
             }
+            -3 -> { // '=<' navigation key: intentionally ignored
+            }
             -100 -> { // Toggle Emoji Window
                 toggleEmojiPicker(true)
             }
             else -> {
-                var code = primaryCode.toChar()
-                if (Character.isLetter(code) && isCaps) {
-                    code = code.uppercaseChar()
+                val text = charForCode(primaryCode) ?: return
+                val out = if (text.isNotEmpty() && Character.isLetter(text[0]) && isCaps) {
+                    text.uppercase()
+                } else {
+                    text
                 }
-                ic.commitText(code.toString(), 1)
+                ic.commitText(out, 1)
             }
         }
     }
