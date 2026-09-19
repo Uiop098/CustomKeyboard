@@ -7,6 +7,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     name: Lint + Unit Tests
@@ -17,11 +20,13 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+
+    - name: Set up Gradle (cached wrapper + dependencies, retries included)
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -41,11 +46,13 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+
+    - name: Set up Gradle (cached wrapper + dependencies, retries included)
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
