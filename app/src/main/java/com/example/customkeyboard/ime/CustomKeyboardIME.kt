@@ -20,6 +20,8 @@ import com.example.customkeyboard.util.SoundManager
 import com.example.customkeyboard.ui.EmojiAdapter
 import com.example.customkeyboard.data.EmojiData
 
+import com.example.customkeyboard.Keyboard_Engine.KeyboardEngine
+
 /** Maps a key code to the text it commits, or null for action/control keys. */
 fun charForCode(code: Int): String? = when (code) {
     -100, -200, Keyboard.KEYCODE_DELETE, Keyboard.KEYCODE_DONE, Keyboard.KEYCODE_CANCEL,
@@ -38,7 +40,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private var isCaps = false
     private var isEmojiShowing = false
     private var emojiContainer: LinearLayout? = null
-
+    
     private var lastPlayTime = 0L
 
     override fun onCreate() {

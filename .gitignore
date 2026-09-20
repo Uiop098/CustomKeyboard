@@ -18,4 +18,4 @@ app/reports/
 app/build/
 
 # Logs
-*.log
+*.logbuild/
