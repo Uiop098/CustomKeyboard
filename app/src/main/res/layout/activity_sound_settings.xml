@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?android:attr/colorBackground">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sound Settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dp"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_sound_enabled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable Keyboard Sounds"
+        android:textSize="16sp"
+        android:paddingVertical="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Volume"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <SeekBar
+            android:id="@+id/seek_volume"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100" />
+
+        <TextView
+            android:id="@+id/tv_volume_value"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="80%"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="?android:attr/textColorPrimary" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_test_sound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test Sound"
+        android:layout_marginTop="24dp"
+        style="?android:attr/buttonBarButtonStyle" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        style="?android:attr/buttonBarButtonStyle" />
+
+</LinearLayout>

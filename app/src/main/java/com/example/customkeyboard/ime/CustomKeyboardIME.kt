@@ -96,15 +96,10 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     override fun onKey(primaryCode: Int, keyCodes: IntArray?) {
         val ic: InputConnection = currentInputConnection ?: return
-        
-        val now = System.currentTimeMillis()
-        if (now - lastPlayTime > 50) {
-            playFeedback()
-            lastPlayTime = now
-        }
 
         when (primaryCode) {
             Keyboard.KEYCODE_DELETE -> {
+                playFeedback(SoundManager.SoundType.DELETE)
                 val selectedText = ic.getSelectedText(0)
                 if (selectedText.isNullOrEmpty()) {
                     ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DEL))
@@ -114,23 +109,33 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 }
             }
             Keyboard.KEYCODE_SHIFT -> {
+                playFeedback(SoundManager.SoundType.CLICK_SOFT)
                 isCaps = !isCaps
                 keyboardEngine.qwertyKeyboard.isShifted = isCaps
                 keyboardView.invalidateAllKeys()
             }
             Keyboard.KEYCODE_DONE -> {
+                playFeedback(SoundManager.SoundType.RETURN)
                 ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
             }
+            32 -> { // Space key
+                playFeedback(SoundManager.SoundType.SPACEBAR)
+                ic.commitText(" ", 1)
+            }
             -2 -> { // Switch between QWERTY and Symbols
+                playFeedback(SoundManager.SoundType.CLICK_SOFT)
                 keyboardEngine.toggleSymbols()
             }
             -200 -> { // '=\<' navigation key action
+                playFeedback()
                 ic.commitText("=<", 1)
             }
             -100 -> { // Toggle Emoji Window
+                playFeedback(SoundManager.SoundType.CLICK_POP)
                 toggleEmojiPicker(true)
             }
             else -> {
+                playFeedback()
                 val text = charForCode(primaryCode) ?: return
                 val out = if (text.isNotEmpty() && Character.isLetter(text[0]) && isCaps) {
                     text.uppercase()
@@ -153,9 +158,9 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyboardView.visibility = if (show) View.GONE else View.VISIBLE
     }
 
-    private fun playFeedback() {
+    private fun playFeedback(soundType: SoundManager.SoundType = SoundManager.SoundType.CLICK_MECHANICAL) {
         if (prefs.isSoundEnabled) {
-            soundManager.playKeyClick()
+            soundManager.playKeyClick(soundType)
         }
         if (prefs.isVibrationEnabled) {
             val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
@@ -166,6 +171,11 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 vibrator?.vibrate(prefs.vibrationDurationMs)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        soundManager.release()
     }
 
     override fun onPress(primaryCode: Int) {}

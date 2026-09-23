@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         val btnEnable = findViewById<Button>(R.id.btn_enable_keyboard)
         val btnSelect = findViewById<Button>(R.id.btn_select_keyboard)
+        val btnSoundSettings = findViewById<Button>(R.id.btn_sound_settings)
         val switchSound = findViewById<SwitchMaterial>(R.id.switch_sound)
         val switchVibrate = findViewById<SwitchMaterial>(R.id.switch_vibrate)
         val switchPopup = findViewById<SwitchMaterial>(R.id.switch_popup)
@@ -59,6 +60,11 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("MainActivity", "showInputMethodPicker failed", e)
             }
+        }
+
+        // Open sound settings
+        btnSoundSettings.setOnClickListener {
+            startActivity(Intent(this, SoundSettingsActivity::class.java))
         }
 
         // Sound Preference
