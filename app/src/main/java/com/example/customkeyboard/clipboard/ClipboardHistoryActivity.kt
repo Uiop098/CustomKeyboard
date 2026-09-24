@@ -165,7 +165,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             dialog.setTitle("Add Clipboard Item")
         }
 
-        dialog.setPositiveButton(isEditing ? "Save" : "Add") { dialog, _ ->
+        dialog.setPositiveButton(isEditing ? "Save" : "Add") { dialogInterface, _ ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
