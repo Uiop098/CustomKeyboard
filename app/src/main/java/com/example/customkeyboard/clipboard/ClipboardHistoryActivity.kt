@@ -165,18 +165,14 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             dialog.setTitle("Add Clipboard Item")
         }
 
-        dialog.setPositiveButton(isEditing ? "Save" : "Add") { dialogInterface, _ ->
+        dialog.setPositiveButton(isEditing ? "Save" : "Add") { _, _ ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
             val pinned = switchPin.isChecked
 
-            if (text.isEmpty()) {
-                Toast.makeText(this, "Text cannot be empty", Toast.LENGTH_SHORT).show()
-                return@setPositiveButton
-            }
-
-            if (isEditing) {
+            if (text.isNotEmpty()) {
+                if (isEditing) {
                 clipboardManager.updateItem(
                     existingItem.id,
                     newText = text,
