@@ -1,9 +1,13 @@
 package com.example.customkeyboard.swipe
 
 import android.content.Context
+import android.graphics.PointF
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import com.example.customkeyboard.R
+import kotlin.math.abs
+import kotlin.math.min
+import kotlin.math.sqrt
 
 /**
  * Predicts words from swipe gestures using a dictionary and key positions
@@ -12,7 +16,7 @@ class WordPredictor(private val context: Context) {
 
     private val dictionary = mutableListOf<String>()
     private val keyPositions = mutableMapOf<Int, KeyPosition>()
-    private val keyboardView: KeyboardView? = null
+    private var keyboardView: KeyboardView? = null
 
     init {
         loadDictionary()
@@ -111,7 +115,9 @@ class WordPredictor(private val context: Context) {
         var minDistance = Float.MAX_VALUE
 
         for ((code, pos) in keyPositions) {
-            val distance = Math.hypot(pos.x - x, pos.y - y).toFloat()
+            val dx = pos.x - x
+            val dy = pos.y - y
+            val distance = sqrt((dx * dx + dy * dy).toDouble()).toFloat()
             if (distance < minDistance && distance < pos.width * 0.8) {
                 minDistance = distance
                 nearestCode = code
@@ -156,7 +162,9 @@ class WordPredictor(private val context: Context) {
             for (code in keyCodes) {
                 val pos = keyPositions[code]
                 if (pos != null) {
-                    val dist = Math.hypot(pos.x - targetKeyPos.x, pos.y - targetKeyPos.y).toFloat()
+                    val dx = pos.x - targetKeyPos.x
+                    val dy = pos.y - targetKeyPos.y
+                    val dist = sqrt((dx * dx + dy * dy).toDouble()).toFloat()
                     minDist = min(minDist, dist)
                 }
             }
@@ -164,7 +172,7 @@ class WordPredictor(private val context: Context) {
         }
 
         // Penalize length difference
-        score += abs(word.length - keyCodes.size) * 20f
+        score += abs(word.length - keyCodes.size).toFloat() * 20f
 
         return score
     }

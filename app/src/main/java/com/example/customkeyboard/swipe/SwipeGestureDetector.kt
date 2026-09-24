@@ -67,7 +67,9 @@ class SwipeGestureDetector(
         for (i in 1 until touchPoints.size) {
             val p1 = touchPoints[i - 1]
             val p2 = touchPoints[i]
-            distance += Math.hypot(p2.x - p1.x, p2.y - p1.y).toFloat()
+            val dx = p2.x - p1.x
+            val dy = p2.y - p1.y
+            distance += Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
         }
         return distance
     }
@@ -83,7 +85,7 @@ class SwipeGestureDetector(
         val keyboard = keyboardView.keyboard ?: return keyCodes
 
         for (point in touchPoints) {
-            val keyIndex = keyboardView.getKeyAt(point.x.toInt(), point.y.toInt())
+            val keyIndex = findKeyAtPoint(keyboard, point.x, point.y)
             if (keyIndex >= 0) {
                 val key = keyboard.keys[keyIndex]
                 // Only add letter keys (not modifiers, space, delete, etc.)
@@ -93,6 +95,17 @@ class SwipeGestureDetector(
             }
         }
         return keyCodes
+    }
+
+    private fun findKeyAtPoint(keyboard: Keyboard, x: Float, y: Float): Int {
+        for (i in keyboard.keys.indices) {
+            val key = keyboard.keys[i]
+            if (x >= key.x && x <= key.x + key.width &&
+                y >= key.y && y <= key.y + key.height) {
+                return i
+            }
+        }
+        return -1
     }
 
     private fun isLetterKey(code: Int): Boolean {
