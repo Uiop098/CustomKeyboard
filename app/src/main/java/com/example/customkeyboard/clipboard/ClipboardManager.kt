@@ -28,7 +28,7 @@ data class ClipboardItem(
 }
 
 /**
- * Type token for List<ClipboardItem> serialization
+ * Type token for ArrayList<ClipboardItem> serialization
  */
 private class ClipboardItemListType : TypeToken<ArrayList<ClipboardItem>>() {}
 

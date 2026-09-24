@@ -122,19 +122,11 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         Toast.makeText(this, "Item $status", Toast.LENGTH_SHORT).show()
     }
 
-    private fun onClickListener(action: (DialogInterface, Int) -> Unit): DialogInterface.OnClickListener {
-        return object : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface, which: Int) {
-                action(dialog, which)
-            }
-        }
-    }
-
     private fun deleteItem(item: ClipboardItem) {
         AlertDialog.Builder(this)
             .setTitle("Delete Item")
             .setMessage("Delete \"${item.getPreview()}\"?")
-            .setPositiveButton("Delete", onClickListener { _, _ ->
+            .setPositiveButton("Delete") { _, _ ->
                 clipboardManager.deleteItem(item.id)
                 loadClips()
                 Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
@@ -168,7 +160,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             builder.setTitle("Add Clipboard Item")
         }
 
-        builder.setPositiveButton(isEditing ? "Save" : "Add", onClickListener { _, _ ->
+        builder.setPositiveButton(isEditing ? "Save" : "Add", DialogInterface.OnClickListener { _, _ ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
@@ -215,7 +207,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Clear Unpinned Items")
             .setMessage("Delete $count unpinned items? Pinned items will be kept.")
-            .setPositiveButton("Clear", onClickListener { _, _ ->
+            .setPositiveButton("Clear") { _, _ ->
                 val deleted = clipboardManager.clearUnpinned()
                 loadClips()
                 Toast.makeText(this, "$deleted items cleared", Toast.LENGTH_SHORT).show()
