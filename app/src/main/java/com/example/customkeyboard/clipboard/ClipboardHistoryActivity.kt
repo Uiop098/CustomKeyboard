@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -147,10 +148,10 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         val switchPin = view.findViewById<SwitchMaterial>(R.id.switch_pin)
 
         if (isEditing) {
-            etText.setText(existingItem.text)
-            etLabel.setText(existingItem.label)
-            etCategory.setText(existingItem.category)
-            switchPin.isChecked = existingItem.isPinned
+            etText.setText(existingItem!!.text)
+            etLabel.setText(existingItem!!.label)
+            etCategory.setText(existingItem!!.category)
+            switchPin.isChecked = existingItem!!.isPinned
             builder.setTitle("Edit Clipboard Item")
         } else {
             val clip = systemClipboard.primaryClip?.getItemAt(0)?.text?.toString()
@@ -160,7 +161,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             builder.setTitle("Add Clipboard Item")
         }
 
-        builder.setPositiveButton(isEditing ? "Save" : "Add") { _, _ ->
+        builder.setPositiveButton(isEditing ? "Save" : "Add") { dialog: DialogInterface, which: Int ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
