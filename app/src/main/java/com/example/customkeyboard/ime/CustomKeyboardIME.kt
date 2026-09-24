@@ -171,7 +171,9 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         if (predictedWord != null && predictedWord.isNotEmpty()) {
             val ic = currentInputConnection ?: return
             // Add space before the word if not at start
-            val surroundingText = ic.getSurroundingText(1, 0)
+            val beforeLength = 1
+            val afterLength = 0
+            val surroundingText = ic.getSurroundingText(beforeLength, afterLength)
             val surroundingStr = surroundingText?.text?.toString() ?: ""
             val prefix = if (surroundingStr.isNotEmpty() && !surroundingStr.endsWith(" ")) {
                 " "
