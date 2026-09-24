@@ -2,14 +2,14 @@ package com.example.customkeyboard.Keyboard_Engine
 
 import android.content.Context
 import android.inputmethodservice.Keyboard
-import android.inputmethodservice.KeyboardView
 import com.example.customkeyboard.R
+import com.example.customkeyboard.swipe.SwipeKeyboardView
 
-class KeyboardEngine(private val context: Context, private val keyboardView: KeyboardView) {
-    
+class KeyboardEngine(private val context: Context, private val keyboardView: SwipeKeyboardView) {
+
     val qwertyKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_qwerty)
     val symbolsKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_symbols)
-    
+
     // Future extension for numbers or region layouts
     // val numbersKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_numbers)
 
@@ -29,7 +29,7 @@ class KeyboardEngine(private val context: Context, private val keyboardView: Key
         }
         keyboardView.invalidateAllKeys()
     }
-    
+
     fun toggleSymbols() {
         if (currentMode == LayoutMode.QWERTY) {
             switchTo(LayoutMode.SYMBOLS)
@@ -37,4 +37,6 @@ class KeyboardEngine(private val context: Context, private val keyboardView: Key
             switchTo(LayoutMode.QWERTY)
         }
     }
+
+    fun getKeyboardView(): SwipeKeyboardView = keyboardView
 }

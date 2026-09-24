@@ -11,11 +11,15 @@ import android.os.Build
 import android.view.View
 import android.view.inputmethod.InputConnection
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customkeyboard.R
 import com.example.customkeyboard.Keyboard_Engine.KeyboardEngine
 import com.example.customkeyboard.data.Prefs
+import com.example.customkeyboard.swipe.SwipeGestureDetector
+import com.example.customkeyboard.swipe.SwipeKeyboardView
+import com.example.customkeyboard.swipe.WordPredictor
 import com.example.customkeyboard.util.SoundManager
 import com.example.customkeyboard.ui.EmojiAdapter
 import com.example.customkeyboard.data.EmojiData
@@ -30,21 +34,23 @@ fun charForCode(code: Int): String? = when (code) {
 @Suppress("DEPRECATION")
 class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionListener {
 
-    private lateinit var keyboardView: KeyboardView
+    private lateinit var keyboardView: SwipeKeyboardView
     private lateinit var keyboardEngine: KeyboardEngine
     private lateinit var prefs: Prefs
     private lateinit var soundManager: SoundManager
+    private lateinit var swipeDetector: SwipeGestureDetector
+    private lateinit var wordPredictor: WordPredictor
 
     private var isCaps = false
     private var isEmojiShowing = false
     private var emojiContainer: LinearLayout? = null
-    
-    private var lastPlayTime = 0L
+    private var isSwipeEnabled = true
 
     override fun onCreate() {
         super.onCreate()
         prefs = Prefs(this)
         soundManager = SoundManager(this)
+        wordPredictor = WordPredictor(this)
     }
 
     override fun onCreateInputView(): View {
@@ -73,6 +79,14 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         keyboardView.setOnKeyboardActionListener(this)
         keyboardView.isPreviewEnabled = prefs.isPopupPreviewEnabled
+
+        // Initialize swipe detector
+        swipeDetector = SwipeGestureDetector(this, keyboardView) { touchPoints ->
+            handleSwipeComplete(touchPoints)
+        }
+
+        // Initialize word predictor with keyboard view
+        wordPredictor.setKeyboardView(keyboardView)
 
         setupEmojiPicker(root)
         return root
@@ -148,6 +162,37 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 }
             }
         }
+    }
+
+    private fun handleSwipeComplete(touchPoints: List<android.graphics.PointF>) {
+        if (!isSwipeEnabled) return
+
+        val predictedWord = wordPredictor.predict(touchPoints)
+        if (predictedWord != null && predictedWord.isNotEmpty()) {
+            val ic = currentInputConnection ?: return
+            // Add space before the word if not at start
+            val surroundingText = ic.getSurroundingText(1, 0)
+            val prefix = if (surroundingText != null && surroundingText.isNotEmpty() && !surroundingText.endsWith(" ")) {
+                " "
+            } else {
+                ""
+            }
+            val finalText = "$prefix$predictedWord"
+            ic.commitText(finalText, 1)
+            playFeedback(SoundManager.SoundType.CLICK_MECHANICAL)
+            
+            // Show feedback
+            showSwipeFeedback(predictedWord)
+        }
+        
+        // Clear swipe trail
+        keyboardView.clearSwipe()
+    }
+
+    private fun showSwipeFeedback(word: String) {
+        // Could show a brief toast or suggestion bar
+        // For now just log it
+        android.util.Log.d("SwipeTyping", "Predicted: $word")
     }
 
     private fun toggleEmojiPicker(show: Boolean) {
