@@ -122,18 +122,23 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         Toast.makeText(this, "Item $status", Toast.LENGTH_SHORT).show()
     }
 
-    private fun deleteItem(item: ClipboardItem) {
-        val listener = object : DialogInterface.OnClickListener {
+    private fun makeListener(action: (DialogInterface, Int) -> Unit): DialogInterface.OnClickListener {
+        return object : DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface, which: Int) {
-                clipboardManager.deleteItem(item.id)
-                loadClips()
-                Toast.makeText(this@ClipboardHistoryActivity, "Deleted", Toast.LENGTH_SHORT).show()
+                action(dialog, which)
             }
         }
+    }
+
+    private fun deleteItem(item: ClipboardItem) {
         AlertDialog.Builder(this)
             .setTitle("Delete Item")
             .setMessage("Delete \"${item.getPreview()}\"?")
-            .setPositiveButton("Delete", listener)
+            .setPositiveButton("Delete", makeListener { _, _ ->
+                clipboardManager.deleteItem(item.id)
+                loadClips()
+                Toast.makeText(this@ClipboardHistoryActivity, "Deleted", Toast.LENGTH_SHORT).show()
+            })
             .setNegativeButton("Cancel", null)
             .show()
     }
@@ -163,7 +168,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             builder.setTitle("Add Clipboard Item")
         }
 
-        val positiveListener = DialogInterface.OnClickListener { _, _ ->
+        builder.setPositiveButton(isEditing ? "Save" : "Add", makeListener { _, _ ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
@@ -196,9 +201,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this@ClipboardHistoryActivity, "Text cannot be empty", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        builder.setPositiveButton(isEditing ? "Save" : "Add", positiveListener)
+        })
         builder.setNegativeButton("Cancel", null)
         builder.show()
     }
@@ -209,15 +212,14 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             Toast.makeText(this, "No unpinned items to clear", Toast.LENGTH_SHORT).show()
             return
         }
-        val listener = DialogInterface.OnClickListener { _, _ ->
-            val deleted = clipboardManager.clearUnpinned()
-            loadClips()
-            Toast.makeText(this, "$deleted items cleared", Toast.LENGTH_SHORT).show()
-        }
         AlertDialog.Builder(this)
             .setTitle("Clear Unpinned Items")
             .setMessage("Delete $count unpinned items? Pinned items will be kept.")
-            .setPositiveButton("Clear", listener)
+            .setPositiveButton("Clear", makeListener { _, _ ->
+                val deleted = clipboardManager.clearUnpinned()
+                loadClips()
+                Toast.makeText(this, "$deleted items cleared", Toast.LENGTH_SHORT).show()
+            })
             .setNegativeButton("Cancel", null)
             .show()
     }
