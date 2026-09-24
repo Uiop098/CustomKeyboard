@@ -71,7 +71,7 @@ class WordPredictor(private val context: Context) {
         for (i in keyboard.keys.indices) {
             val key = keyboard.keys[i]
             val code = key.codes[0]
-            if (code in 'a'..'z' || code in 'A'..'Z') {
+            if (code in 'a'.toInt()..'z'.toInt() || code in 'A'.toInt()..'Z'.toInt()) {
                 keyPositions[code] = KeyPosition(
                     x = key.x + key.width / 2f,
                     y = key.y + key.height / 2f,

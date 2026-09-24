@@ -109,7 +109,7 @@ class SwipeGestureDetector(
     }
 
     private fun isLetterKey(code: Int): Boolean {
-        return code in 'a'..'z' || code in 'A'..'Z'
+        return code in 'a'.toInt()..'z'.toInt() || code in 'A'.toInt()..'Z'.toInt()
     }
 
     data class KeyPosition(
