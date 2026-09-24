@@ -1,7 +1,7 @@
 package com.example.customkeyboard.clipboard
 
 import android.content.ClipData
-import android.content.ClipboardManager
+import android.content.ClipboardManager as SystemClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -29,7 +29,7 @@ import com.google.android.material.textfield.TextInputLayout
 class ClipboardHistoryActivity : AppCompatActivity() {
 
     private lateinit var clipboardManager: ClipboardManager
-    private lateinit var systemClipboard: ClipboardManager
+    private lateinit var systemClipboard: SystemClipboardManager
     private lateinit var rvClips: RecyclerView
     private lateinit var etSearch: EditText
     private lateinit var switchAutoCleanup: SwitchMaterial
@@ -41,7 +41,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_clipboard_history)
 
         clipboardManager = ClipboardManager(this)
-        systemClipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        systemClipboard = getSystemService(Context.CLIPBOARD_SERVICE) as SystemClipboardManager
 
         setupViews()
         setupRecyclerView()
@@ -124,7 +124,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
     }
 
     private fun deleteItem(item: ClipboardItem) {
-        new AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Delete Item")
             .setMessage("Delete \"${item.getPreview()}\"?")
             .setPositiveButton("Delete") { _, _ ->
@@ -165,7 +165,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             dialog.setTitle("Add Clipboard Item")
         }
 
-        dialog.setPositiveButton(isEditing ? "Save" : "Add") { _, _ ->
+        dialog.setPositiveButton(isEditing ? "Save" : "Add") { dialog, _ ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
@@ -211,7 +211,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             Toast.makeText(this, "No unpinned items to clear", Toast.LENGTH_SHORT).show()
             return
         }
-        new AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Clear Unpinned Items")
             .setMessage("Delete $count unpinned items? Pinned items will be kept.")
             .setPositiveButton("Clear") { _, _ ->
