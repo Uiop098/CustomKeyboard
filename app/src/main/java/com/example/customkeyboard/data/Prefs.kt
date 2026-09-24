@@ -30,6 +30,10 @@ class Prefs(context: Context) {
         get() = prefs.getInt("custom_sound_resource", 0)
         set(value) = prefs.edit().putInt("custom_sound_resource", value).apply()
     
+    var customSoundUri: String
+        get() = prefs.getString("custom_sound_uri", "") ?: ""
+        set(value) = prefs.edit().putString("custom_sound_uri", value).apply()
+    
     var selectedSoundType: String
         get() = prefs.getString("selected_sound_type", "CLICK_MECHANICAL") ?: "CLICK_MECHANICAL"
         set(value) = prefs.edit().putString("selected_sound_type", value).apply()

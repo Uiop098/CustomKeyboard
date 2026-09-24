@@ -4,7 +4,10 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
+import android.net.Uri
 import com.example.customkeyboard.data.Prefs
+import java.io.File
+import java.io.FileOutputStream
 
 class SoundManager(private val context: Context) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -56,6 +59,13 @@ class SoundManager(private val context: Context) {
 
     private fun loadSounds() {
         try {
+            // Load custom sound if URI is set
+            val customSoundUri = prefs.customSoundUri
+            if (customSoundUri.isNotEmpty()) {
+                loadCustomSound(Uri.parse(customSoundUri))
+            }
+            
+            // Load resource-based custom sound if set
             val customSoundId = prefs.customSoundResourceId
             if (customSoundId != 0) {
                 soundMap[SoundType.CLICK_MECHANICAL] = soundPool?.load(context, customSoundId, 1) ?: 0
@@ -69,19 +79,22 @@ class SoundManager(private val context: Context) {
         if (!prefs.isSoundEnabled) return
 
         try {
+            // Priority: Custom URI > Resource > System
+            if (soundPool != null && isInitialized) {
+                val soundId = soundMap[SoundType.CLICK_MECHANICAL] ?: 0
+                if (soundId > 0) {
+                    val volume = prefs.soundVolume / 100f
+                    soundPool?.play(soundId, volume, volume, 1, 0, 1.0f)
+                    return
+                }
+            }
+            
+            // Fallback for others or if custom failed
             when (soundType) {
-                SoundType.SYSTEM_DEFAULT -> {
-                    audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
-                }
-                else -> {
-                    val soundId = soundMap[soundType]
-                    if (soundId != null && soundId > 0 && isInitialized) {
-                        val volume = prefs.soundVolume / 100f
-                        soundPool?.play(soundId, volume, volume, 1, 0, 1.0f)
-                    } else {
-                        audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
-                    }
-                }
+                SoundType.SPACEBAR -> audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR)
+                SoundType.DELETE -> audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE)
+                SoundType.RETURN -> audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_RETURN)
+                else -> audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -124,12 +137,41 @@ class SoundManager(private val context: Context) {
         }
     }
 
+    fun loadCustomSound(uri: Uri) {
+        try {
+            soundMap.clear()
+            
+            // Create a temporary file from the URI
+            val tempFile = File(context.cacheDir, "custom_sound_${System.currentTimeMillis()}.mp3")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            
+            // Load the sound from the temporary file
+            val soundId = soundPool?.load(tempFile.absolutePath, 1) ?: 0
+            if (soundId > 0) {
+                soundMap[SoundType.CLICK_MECHANICAL] = soundId
+                prefs.customSoundUri = uri.toString()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Fall back to system sound on error
+        }
+    }
+
     fun release() {
         try {
             soundPool?.release()
             soundPool = null
             soundMap.clear()
             isInitialized = false
+            
+            // Clean up temporary files
+            context.cacheDir.listFiles()?.filter { it.name.startsWith("custom_sound_") }?.forEach {
+                it.delete()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
