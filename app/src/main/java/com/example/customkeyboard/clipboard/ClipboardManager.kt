@@ -39,7 +39,7 @@ class ClipboardManager(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("clipboard_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private val type: Type = ClipboardItemListType().type
+    private val type: Type = object : TypeToken<ArrayList<ClipboardItem>>() {}.type
 
     // Configuration
     private val maxItems = 100
