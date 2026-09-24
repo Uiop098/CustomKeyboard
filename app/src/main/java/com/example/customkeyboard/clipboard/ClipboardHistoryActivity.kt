@@ -3,6 +3,7 @@ package com.example.customkeyboard.clipboard
 import android.content.ClipData
 import android.content.ClipboardManager as SystemClipboardManager
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -64,9 +65,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         btnImportExport.setOnClickListener { showImportExportDialog() }
 
         switchAutoCleanup.isChecked = true
-        switchAutoCleanup.setOnCheckedChangeListener { _, isChecked ->
-            // Auto cleanup is always enabled in manager, but we can add preference later
-        }
+        switchAutoCleanup.setOnCheckedChangeListener { _, _ -> }
 
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -138,15 +137,12 @@ class ClipboardHistoryActivity : AppCompatActivity() {
 
     private fun showAddEditDialog(existingItem: ClipboardItem?) {
         val isEditing = existingItem != null
-        val dialog = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
         val view = layoutInflater.inflate(R.layout.dialog_clipboard_edit, null)
-        dialog.setView(view)
+        builder.setView(view)
 
-        val tilText = view.findViewById<TextInputLayout>(R.id.til_text)
         val etText = view.findViewById<TextInputEditText>(R.id.et_text)
-        val tilLabel = view.findViewById<TextInputLayout>(R.id.til_label)
         val etLabel = view.findViewById<TextInputEditText>(R.id.et_label)
-        val tilCategory = view.findViewById<TextInputLayout>(R.id.til_category)
         val etCategory = view.findViewById<TextInputEditText>(R.id.et_category)
         val switchPin = view.findViewById<SwitchMaterial>(R.id.switch_pin)
 
@@ -155,17 +151,16 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             etLabel.setText(existingItem.label)
             etCategory.setText(existingItem.category)
             switchPin.isChecked = existingItem.isPinned
-            dialog.setTitle("Edit Clipboard Item")
+            builder.setTitle("Edit Clipboard Item")
         } else {
-            // Pre-fill with current system clipboard
             val clip = systemClipboard.primaryClip?.getItemAt(0)?.text?.toString()
             if (clip != null && clip.isNotEmpty()) {
                 etText.setText(clip)
             }
-            dialog.setTitle("Add Clipboard Item")
+            builder.setTitle("Add Clipboard Item")
         }
 
-        dialog.setPositiveButton(isEditing ? "Save" : "Add") { _, _ ->
+        builder.setPositiveButton(isEditing ? "Save" : "Add") { _, _ ->
             val text = etText.text.toString().trim()
             val label = etLabel.text.toString().trim()
             val category = etCategory.text.toString().trim()
@@ -173,32 +168,34 @@ class ClipboardHistoryActivity : AppCompatActivity() {
 
             if (text.isNotEmpty()) {
                 if (isEditing) {
-                clipboardManager.updateItem(
-                    existingItem.id,
-                    newText = text,
-                    newLabel = label.ifEmpty { null },
-                    newCategory = category.ifEmpty { "General" },
-                    newPinned = pinned
-                )
-                Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show()
-            } else {
-                clipboardManager.addItem(text)
-                // Update label/category/pin if provided
-                val newItem = clipboardManager.getItems().firstOrNull { it.text == text }
-                if (newItem != null && (label.isNotEmpty() || category.isNotEmpty() || pinned)) {
                     clipboardManager.updateItem(
-                        newItem.id,
+                        existingItem.id,
+                        newText = text,
                         newLabel = label.ifEmpty { null },
                         newCategory = category.ifEmpty { "General" },
                         newPinned = pinned
                     )
+                    Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show()
+                } else {
+                    clipboardManager.addItem(text)
+                    val newItem = clipboardManager.getItems().firstOrNull { it.text == text }
+                    if (newItem != null && (label.isNotEmpty() || category.isNotEmpty() || pinned)) {
+                        clipboardManager.updateItem(
+                            newItem.id,
+                            newLabel = label.ifEmpty { null },
+                            newCategory = category.ifEmpty { "General" },
+                            newPinned = pinned
+                        )
+                    }
+                    Toast.makeText(this, "Added to clipboard history", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(this, "Added to clipboard history", Toast.LENGTH_SHORT).show()
+                loadClips()
+            } else {
+                Toast.makeText(this, "Text cannot be empty", Toast.LENGTH_SHORT).show()
             }
-            loadClips()
         }
-        dialog.setNegativeButton("Cancel", null)
-        dialog.show()
+        builder.setNegativeButton("Cancel", null)
+        builder.show()
     }
 
     private fun showClearUnpinnedDialog() {
@@ -234,21 +231,12 @@ class ClipboardHistoryActivity : AppCompatActivity() {
 
     private fun exportToFile() {
         val json = clipboardManager.exportToJson()
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "application/json"
-            putExtra(Intent.EXTRA_TITLE, "clipboard_history_${System.currentTimeMillis()}.json")
-        }
-        startActivityForResult(intent, 1001)
-        // Note: In real implementation, use ActivityResultContracts.CreateDocument
-        // For simplicity, we'll just copy to clipboard
         val clip = ClipData.newPlainText("clipboard_export", json)
         systemClipboard.setPrimaryClip(clip)
         Toast.makeText(this, "Exported JSON copied to clipboard", Toast.LENGTH_LONG).show()
     }
 
     private fun importFromFile() {
-        // Simplified: paste from clipboard
         val clipText = systemClipboard.primaryClip?.getItemAt(0)?.text?.toString()
         if (clipText == null || clipText.isEmpty()) {
             Toast.makeText(this, "No JSON in clipboard", Toast.LENGTH_SHORT).show()
