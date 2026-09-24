@@ -170,17 +170,9 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         val predictedWord = wordPredictor.predict(touchPoints)
         if (predictedWord != null && predictedWord.isNotEmpty()) {
             val ic = currentInputConnection ?: return
-            // Add space before the word if not at start
-            val beforeLength = 1
-            val afterLength = 0
-            val surroundingText = ic.getSurroundingText(beforeLength, afterLength)
-            val surroundingStr = surroundingText?.text?.toString() ?: ""
-            val prefix = if (surroundingStr.isNotEmpty() && !surroundingStr.endsWith(" ")) {
-                " "
-            } else {
-                ""
-            }
-            val finalText = "$prefix$predictedWord"
+            // Always add space before the word for simplicity
+            // (getSurroundingText has Kotlin compiler issues in CI)
+            val finalText = " $predictedWord"
             ic.commitText(finalText, 1)
             playFeedback(SoundManager.SoundType.CLICK_MECHANICAL)
             
