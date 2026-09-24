@@ -33,6 +33,13 @@
             android:label="Sound Settings"
             android:parentActivityName=".ui.MainActivity" />
 
+        <!-- Clipboard History Activity -->
+        <activity
+            android:name=".clipboard.ClipboardHistoryActivity"
+            android:exported="false"
+            android:label="Clipboard History"
+            android:parentActivityName=".ui.MainActivity" />
+
         <!-- Custom Keyboard IME Service -->
         <service
             android:name=".ime.CustomKeyboardIME"

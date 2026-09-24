@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         val btnEnable = findViewById<Button>(R.id.btn_enable_keyboard)
         val btnSelect = findViewById<Button>(R.id.btn_select_keyboard)
         val btnSoundSettings = findViewById<Button>(R.id.btn_sound_settings)
+        val btnClipboardHistory = findViewById<Button>(R.id.btn_clipboard_history)
         val switchSound = findViewById<SwitchMaterial>(R.id.switch_sound)
         val switchVibrate = findViewById<SwitchMaterial>(R.id.switch_vibrate)
         val switchPopup = findViewById<SwitchMaterial>(R.id.switch_popup)
@@ -65,6 +66,11 @@ class MainActivity : AppCompatActivity() {
         // Open sound settings
         btnSoundSettings.setOnClickListener {
             startActivity(Intent(this, SoundSettingsActivity::class.java))
+        }
+
+        // Open clipboard history
+        btnClipboardHistory.setOnClickListener {
+            startActivity(Intent(this, ClipboardHistoryActivity::class.java))
         }
 
         // Sound Preference
