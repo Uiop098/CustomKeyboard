@@ -160,40 +160,42 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             builder.setTitle("Add Clipboard Item")
         }
 
-        builder.setPositiveButton(isEditing ? "Save" : "Add") { dialog, which ->
-            val text = etText.text.toString().trim()
-            val label = etLabel.text.toString().trim()
-            val category = etCategory.text.toString().trim()
-            val pinned = switchPin.isChecked
+        builder.setPositiveButton(isEditing ? "Save" : "Add", object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface, which: Int) {
+                val text = etText.text.toString().trim()
+                val label = etLabel.text.toString().trim()
+                val category = etCategory.text.toString().trim()
+                val pinned = switchPin.isChecked
 
-            if (text.isNotEmpty()) {
-                if (isEditing) {
-                    clipboardManager.updateItem(
-                        existingItem.id,
-                        newText = text,
-                        newLabel = label.ifEmpty { null },
-                        newCategory = category.ifEmpty { "General" },
-                        newPinned = pinned
-                    )
-                    Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show()
-                } else {
-                    clipboardManager.addItem(text)
-                    val newItem = clipboardManager.getItems().firstOrNull { it.text == text }
-                    if (newItem != null && (label.isNotEmpty() || category.isNotEmpty() || pinned)) {
+                if (text.isNotEmpty()) {
+                    if (isEditing) {
                         clipboardManager.updateItem(
-                            newItem.id,
+                            existingItem!!.id,
+                            newText = text,
                             newLabel = label.ifEmpty { null },
                             newCategory = category.ifEmpty { "General" },
                             newPinned = pinned
                         )
+                        Toast.makeText(this@ClipboardHistoryActivity, "Updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        clipboardManager.addItem(text)
+                        val newItem = clipboardManager.getItems().firstOrNull { it.text == text }
+                        if (newItem != null && (label.isNotEmpty() || category.isNotEmpty() || pinned)) {
+                            clipboardManager.updateItem(
+                                newItem.id,
+                                newLabel = label.ifEmpty { null },
+                                newCategory = category.ifEmpty { "General" },
+                                newPinned = pinned
+                            )
+                        }
+                        Toast.makeText(this@ClipboardHistoryActivity, "Added to clipboard history", Toast.LENGTH_SHORT).show()
                     }
-                    Toast.makeText(this, "Added to clipboard history", Toast.LENGTH_SHORT).show()
+                    loadClips()
+                } else {
+                    Toast.makeText(this@ClipboardHistoryActivity, "Text cannot be empty", Toast.LENGTH_SHORT).show()
                 }
-                loadClips()
-            } else {
-                Toast.makeText(this, "Text cannot be empty", Toast.LENGTH_SHORT).show()
             }
-        }
+        })
         builder.setNegativeButton("Cancel", null)
         builder.show()
     }
