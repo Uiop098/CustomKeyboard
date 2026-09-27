@@ -122,48 +122,34 @@ class ClipboardHistoryActivity : AppCompatActivity() {
         Toast.makeText(this, "Item $status", Toast.LENGTH_SHORT).show()
     }
 
-    private fun deleteItem(item: ClipboardItem) {
-        val listener = object : DialogInterface.OnClickListener {
+    private fun makeDeleteListener(item: ClipboardItem): DialogInterface.OnClickListener {
+        return object : DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface, which: Int) {
                 clipboardManager.deleteItem(item.id)
                 loadClips()
                 Toast.makeText(this@ClipboardHistoryActivity, "Deleted", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun deleteItem(item: ClipboardItem) {
         AlertDialog.Builder(this)
             .setTitle("Delete Item")
             .setMessage("Delete \"${item.getPreview()}\"?")
-            .setPositiveButton("Delete", listener)
+            .setPositiveButton("Delete", makeDeleteListener(item))
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun showAddEditDialog(existingItem: ClipboardItem?) {
-        val isEditing = existingItem != null
-        val builder = AlertDialog.Builder(this)
-        val view = layoutInflater.inflate(R.layout.dialog_clipboard_edit, null)
-        builder.setView(view)
-
-        val etText = view.findViewById<TextInputEditText>(R.id.et_text)
-        val etLabel = view.findViewById<TextInputEditText>(R.id.et_label)
-        val etCategory = view.findViewById<TextInputEditText>(R.id.et_category)
-        val switchPin = view.findViewById<SwitchMaterial>(R.id.switch_pin)
-
-        if (isEditing) {
-            etText.setText(existingItem!!.text)
-            etLabel.setText(existingItem!!.label)
-            etCategory.setText(existingItem!!.category)
-            switchPin.isChecked = existingItem!!.isPinned
-            builder.setTitle("Edit Clipboard Item")
-        } else {
-            val clip = systemClipboard.primaryClip?.getItemAt(0)?.text?.toString()
-            if (clip != null && clip.isNotEmpty()) {
-                etText.setText(clip)
-            }
-            builder.setTitle("Add Clipboard Item")
-        }
-
-        val positiveListener = object : DialogInterface.OnClickListener {
+    private fun makeAddEditListener(
+        isEditing: Boolean,
+        existingItem: ClipboardItem?,
+        etText: TextInputEditText,
+        etLabel: TextInputEditText,
+        etCategory: TextInputEditText,
+        switchPin: SwitchMaterial
+    ): DialogInterface.OnClickListener {
+        return object : DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface, which: Int) {
                 val text = etText.text.toString().trim()
                 val label = etLabel.text.toString().trim()
@@ -199,8 +185,34 @@ class ClipboardHistoryActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        builder.setPositiveButton(isEditing ? "Save" : "Add", positiveListener)
+    private fun showAddEditDialog(existingItem: ClipboardItem?) {
+        val isEditing = existingItem != null
+        val builder = AlertDialog.Builder(this)
+        val view = layoutInflater.inflate(R.layout.dialog_clipboard_edit, null)
+        builder.setView(view)
+
+        val etText = view.findViewById<TextInputEditText>(R.id.et_text)
+        val etLabel = view.findViewById<TextInputEditText>(R.id.et_label)
+        val etCategory = view.findViewById<TextInputEditText>(R.id.et_category)
+        val switchPin = view.findViewById<SwitchMaterial>(R.id.switch_pin)
+
+        if (isEditing) {
+            etText.setText(existingItem!!.text)
+            etLabel.setText(existingItem!!.label)
+            etCategory.setText(existingItem!!.category)
+            switchPin.isChecked = existingItem!!.isPinned
+            builder.setTitle("Edit Clipboard Item")
+        } else {
+            val clip = systemClipboard.primaryClip?.getItemAt(0)?.text?.toString()
+            if (clip != null && clip.isNotEmpty()) {
+                etText.setText(clip)
+            }
+            builder.setTitle("Add Clipboard Item")
+        }
+
+        builder.setPositiveButton(isEditing ? "Save" : "Add", makeAddEditListener(isEditing, existingItem, etText, etLabel, etCategory, switchPin))
         builder.setNegativeButton("Cancel", null)
         builder.show()
     }
@@ -211,17 +223,16 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             Toast.makeText(this, "No unpinned items to clear", Toast.LENGTH_SHORT).show()
             return
         }
-        val listener = object : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface, which: Int) {
-                val deleted = clipboardManager.clearUnpinned()
-                loadClips()
-                Toast.makeText(this@ClipboardHistoryActivity, "$deleted items cleared", Toast.LENGTH_SHORT).show()
-            }
-        }
         AlertDialog.Builder(this)
             .setTitle("Clear Unpinned Items")
             .setMessage("Delete $count unpinned items? Pinned items will be kept.")
-            .setPositiveButton("Clear", listener)
+            .setPositiveButton("Clear", object : DialogInterface.OnClickListener {
+                override fun onClick(dialog: DialogInterface, which: Int) {
+                    val deleted = clipboardManager.clearUnpinned()
+                    loadClips()
+                    Toast.makeText(this@ClipboardHistoryActivity, "$deleted items cleared", Toast.LENGTH_SHORT).show()
+                }
+            })
             .setNegativeButton("Cancel", null)
             .show()
     }
