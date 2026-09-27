@@ -26,7 +26,7 @@
         <Key android:codes="40" android:keyLabel="(" />
         <Key android:codes="41" android:keyLabel=")" />
         <Key android:codes="36" android:keyLabel="$" />
-        <Key android:codes="38" android:keyLabel="&" />
+        <Key android:codes="38" android:keyLabel="&amp;" />
         <Key android:codes="64" android:keyLabel="@" />
         <Key android:codes="35" android:keyLabel="#" android:keyEdgeFlags="right" />
     </Row>
