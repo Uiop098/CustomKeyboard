@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         val btnSelect = findViewById<Button>(R.id.btn_select_keyboard)
         val btnSoundSettings = findViewById<Button>(R.id.btn_sound_settings)
         val btnClipboardHistory = findViewById<Button>(R.id.btn_clipboard_history)
+        val btnOneHandedMode = findViewById<Button>(R.id.btn_one_handed_mode)
+        val btnNumberPad = findViewById<Button>(R.id.btn_number_pad)
         val switchSound = findViewById<SwitchMaterial>(R.id.switch_sound)
         val switchVibrate = findViewById<SwitchMaterial>(R.id.switch_vibrate)
         val switchPopup = findViewById<SwitchMaterial>(R.id.switch_popup)
@@ -72,6 +74,19 @@ class MainActivity : AppCompatActivity() {
         // Open clipboard history
         btnClipboardHistory.setOnClickListener {
             startActivity(Intent(this, ClipboardHistoryActivity::class.java))
+        }
+
+        // Open one-handed mode settings
+        btnOneHandedMode.setOnClickListener {
+            // TODO: Open one-handed mode settings dialog
+            // For now, just show a toast
+            android.widget.Toast.makeText(this, "One-handed mode coming soon!", android.widget.Toast.LENGTH_SHORT).show()
+        }
+
+        // Toggle number pad
+        btnNumberPad.setOnClickListener {
+            // TODO: Toggle number pad in the keyboard
+            android.widget.Toast.makeText(this, "Number pad toggle coming soon!", android.widget.Toast.LENGTH_SHORT).show()
         }
 
         // Sound Preference

@@ -129,6 +129,17 @@
             android:backgroundTint="@color/accent_green"
             style="?android:attr/buttonBarButtonStyle" />
 
+<Button
+            android:id="@+id/btn_sound_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Sound Settings"
+            android:backgroundTint="@color/accent_green"
+            style="?android:attr/buttonBarButtonStyle" />
+
         <Button
             android:id="@+id/btn_clipboard_history"
             android:layout_width="match_parent"
@@ -138,6 +149,28 @@
             android:layout_marginEnd="16dp"
             android:text="Clipboard History"
             android:backgroundTint="@color/accent_orange"
+            style="?android:attr/buttonBarButtonStyle" />
+
+        <Button
+            android:id="@+id/btn_one_handed_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="One-Handed Mode"
+            android:backgroundTint="@color/accent_purple"
+            style="?android:attr/buttonBarButtonStyle" />
+
+        <Button
+            android:id="@+id/btn_number_pad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Number Pad"
+            android:backgroundTint="@color/accent_blue"
             style="?android:attr/buttonBarButtonStyle" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial

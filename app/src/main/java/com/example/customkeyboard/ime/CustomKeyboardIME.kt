@@ -80,13 +80,27 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         keyboardView.setOnKeyboardActionListener(this)
         keyboardView.isPreviewEnabled = prefs.isPopupPreviewEnabled
 
-        // Initialize swipe detector
-        swipeDetector = SwipeGestureDetector(this, keyboardView) { touchPoints ->
-            handleSwipeComplete(touchPoints)
-        }
+        // Initialize swipe detector with all gesture callbacks
+        swipeDetector = SwipeGestureDetector(
+            this,
+            keyboardView,
+            onSwipeComplete = { touchPoints ->
+                handleSwipeComplete(touchPoints)
+            },
+            onGestureDelete = {
+                handleGestureDelete()
+            },
+            onGestureCursorMove = { direction ->
+                handleGestureCursorMove(direction)
+            },
+            onGestureCapitalize = {
+                handleGestureCapitalize()
+            }
+        )
 
         // Initialize word predictor with keyboard view
         wordPredictor.setKeyboardView(keyboardView)
+        wordPredictor.setPrefs(prefs)
 
         setupEmojiPicker(root)
         return root
@@ -164,6 +178,41 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         }
     }
 
+    private fun handleGestureDelete() {
+        val ic = currentInputConnection ?: return
+        // Delete previous word
+        val surroundingText = ic.getSurroundingText(100, 0)
+        val text = surroundingText?.toString() ?: ""
+        val words = text.trim().split("\\s+".toRegex())
+        if (words.isNotEmpty()) {
+            val lastWord = words.last()
+            if (lastWord.isNotEmpty()) {
+                ic.deleteSurroundingText(lastWord.length, 0)
+                playFeedback(SoundManager.SoundType.DELETE)
+            }
+        }
+    }
+
+    private fun handleGestureCursorMove(direction: Int) {
+        val ic = currentInputConnection ?: return
+        // Move cursor left (-1) or right (1)
+        if (direction < 0) {
+            ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_LEFT))
+            ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_DPAD_LEFT))
+        } else {
+            ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_RIGHT))
+            ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_DPAD_RIGHT))
+        }
+        playFeedback(SoundManager.SoundType.CLICK_SOFT)
+    }
+
+    private fun handleGestureCapitalize() {
+        isCaps = true
+        keyboardEngine.qwertyKeyboard.isShifted = true
+        keyboardView.invalidateAllKeys()
+        playFeedback(SoundManager.SoundType.CLICK_SOFT)
+    }
+
     private fun handleSwipeComplete(touchPoints: List<android.graphics.PointF>) {
         if (!isSwipeEnabled) return
 
@@ -216,8 +265,63 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         soundManager.release()
     }
 
-    override fun onPress(primaryCode: Int) {}
-    override fun onRelease(primaryCode: Int) {}
+    private var longPressHandler: android.os.Handler? = null
+    private var longPressKeyCode: Int = 0
+    private val LONG_PRESS_DELAY = 500L
+
+    override fun onPress(primaryCode: Int) {
+        // Start long press timer for symbol keys
+        if (isSymbolKey(primaryCode)) {
+            longPressKeyCode = primaryCode
+            longPressHandler = android.os.Handler(android.os.Looper.getMainLooper())
+            longPressHandler?.postDelayed({
+                showSymbolPicker(primaryCode)
+            }, LONG_PRESS_DELAY)
+        }
+    }
+
+    override fun onRelease(primaryCode: Int) {
+        longPressHandler?.removeCallbacksAndMessages(null)
+        longPressHandler = null
+        longPressKeyCode = 0
+    }
+
+    private fun isSymbolKey(code: Int): Boolean {
+        // Check if the key has alternative symbols
+        val keyboard = keyboardView.keyboard
+        if (keyboard == null) return false
+        for (key in keyboard.keys) {
+            if (key.codes[0] == code) {
+                // Check if key has popup characters (alternative symbols)
+                return key.popupCharacters != null && key.popupCharacters.isNotEmpty()
+            }
+        }
+        return false
+    }
+
+    private fun showSymbolPicker(keyCode: Int) {
+        val ic = currentInputConnection ?: return
+        val keyboard = keyboardView.keyboard ?: return
+        
+        for (key in keyboard.keys) {
+            if (key.codes[0] == keyCode && key.popupCharacters != null && key.popupCharacters.isNotEmpty()) {
+                val symbols = key.popupCharacters
+                // Show a simple dialog with the symbols
+                val builder = android.app.AlertDialog.Builder(this)
+                builder.setTitle("Select symbol for ${keyCode.toChar()}")
+                val symbolArray = symbols.toCharArray().map { it.toString() }.toTypedArray()
+                builder.setItems(symbolArray) { _, which ->
+                    val selectedSymbol = symbols[which].toString()
+                    val ic = currentInputConnection ?: return
+                    ic.commitText(selectedSymbol, 1)
+                    playFeedback(SoundManager.SoundType.CLICK_POP)
+                }
+                builder.setNegativeButton("Cancel", null)
+                builder.show()
+                break
+            }
+        }
+    }
     override fun onText(text: CharSequence?) {
         currentInputConnection?.commitText(text, 1)
     }

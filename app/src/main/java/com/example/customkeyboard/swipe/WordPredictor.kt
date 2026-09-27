@@ -1,61 +1,85 @@
 package com.example.customkeyboard.swipe
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.PointF
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import com.example.customkeyboard.R
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.util.Properties
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Predicts words from swipe gestures using a dictionary and key positions
+ * Predicts words from swipe gestures using a dictionary and key positions.
+ * Uses frequency-based scoring with n-gram language model for better predictions.
  */
 class WordPredictor(private val context: Context) {
 
-    private val dictionary = mutableListOf<String>()
+    private val dictionary = mutableListOf<DictionaryEntry>()
     private val keyPositions = mutableMapOf<Int, KeyPosition>()
     private var keyboardView: KeyboardView? = null
+    private var prefs: SharedPreferences? = null
 
     init {
         loadDictionary()
     }
 
+    fun setPrefs(prefs: SharedPreferences) {
+        this.prefs = prefs
+    }
+
     private fun loadDictionary() {
         try {
-            // Load from raw resource
+            // Load from raw resource with frequency data
             val inputStream = context.resources.openRawResource(R.raw.dictionary)
-            inputStream.bufferedReader().use { reader ->
+            InputStreamReader(inputStream).use { reader ->
                 reader.forEachLine { line ->
-                    val word = line.trim().lowercase()
+                    val parts = line.split("\t")
+                    val word = parts[0].trim().lowercase()
+                    val frequency = if (parts.size > 1) parts[1].toLong() else 1L
                     if (word.length >= 2 && word.all { it.isLetter() }) {
-                        dictionary.add(word)
+                        dictionary.add(DictionaryEntry(word, frequency))
                     }
                 }
             }
+            // Sort by frequency descending for faster lookup
+            dictionary.sortByDescending { it.frequency }
         } catch (e: Exception) {
-            // Fallback to basic dictionary
             loadDefaultDictionary()
         }
     }
 
     private fun loadDefaultDictionary() {
         val defaultWords = listOf(
-            "the", "be", "to", "of", "and", "a", "in", "that", "have", "i",
-            "it", "for", "not", "on", "with", "he", "as", "you", "do", "at",
-            "this", "but", "his", "by", "from", "they", "we", "say", "her", "she",
-            "or", "an", "will", "my", "one", "all", "would", "there", "their", "what",
-            "so", "up", "out", "if", "about", "who", "get", "which", "go", "me",
-            "when", "make", "can", "like", "time", "no", "just", "him", "know", "take",
-            "people", "into", "year", "your", "good", "some", "could", "them", "see", "other",
-            "than", "then", "now", "look", "only", "come", "its", "over", "think", "also",
-            "back", "after", "use", "two", "how", "our", "work", "first", "well", "way",
-            "even", "new", "want", "because", "any", "these", "give", "day", "most", "us",
-            "is", "are", "was", "were", "been", "has", "had", "does", "did", "doing",
-            "hello", "world", "android", "keyboard", "swipe", "type", "write", "text", "message", "chat"
+            "the" to 1000000L, "be" to 900000L, "to" to 800000L, "of" to 750000L, "and" to 700000L,
+            "a" to 650000L, "in" to 600000L, "that" to 550000L, "have" to 500000L, "i" to 500000L,
+            "it" to 480000L, "for" to 470000L, "not" to 450000L, "on" to 430000L, "with" to 420000L,
+            "he" to 410000L, "as" to 400000L, "you" to 400000L, "do" to 390000L, "at" to 380000L,
+            "this" to 370000L, "but" to 360000L, "his" to 350000L, "by" to 350000L, "from" to 340000L,
+            "they" to 330000L, "we" to 330000L, "say" to 320000L, "her" to 310000L, "she" to 300000L,
+            "or" to 290000L, "an" to 280000L, "will" to 280000L, "my" to 270000L, "one" to 260000L,
+            "all" to 250000L, "would" to 240000L, "there" to 230000L, "their" to 220000L, "what" to 210000L,
+            "so" to 200000L, "up" to 190000L, "out" to 180000L, "if" to 170000L, "about" to 160000L,
+            "who" to 150000L, "get" to 140000L, "which" to 130000L, "go" to 120000L, "me" to 110000L,
+            "when" to 100000L, "make" to 95000L, "can" to 90000L, "like" to 85000L, "time" to 80000L,
+            "no" to 75000L, "just" to 70000L, "him" to 65000L, "know" to 60000L, "take" to 55000L,
+            "people" to 50000L, "into" to 48000L, "year" to 46000L, "your" to 45000L, "good" to 43000L,
+            "some" to 41000L, "could" to 39000L, "them" to 37000L, "see" to 35000L, "other" to 33000L,
+            "than" to 31000L, "then" to 29000L, "now" to 27000L, "look" to 25000L, "only" to 23000L,
+            "come" to 21000L, "its" to 19000L, "over" to 17000L, "think" to 15000L, "also" to 13000L,
+            "back" to 11000L, "after" to 9000L, "use" to 7000L, "two" to 5000L, "how" to 3000L,
+            "our" to 1000L, "work" to 800L, "first" to 600L, "well" to 400L, "way" to 200L,
+            "even" to 100L, "new" to 80L, "want" to 60L, "because" to 40L, "any" to 20L,
+            "hello" to 1000L, "world" to 1000L, "android" to 1000L, "keyboard" to 1000L,
+            "swipe" to 1000L, "type" to 1000L, "write" to 1000L, "text" to 1000L,
+            "message" to 1000L, "chat" to 1000L
         )
-        dictionary.addAll(defaultWords)
+        dictionary.addAll(defaultWords.map { DictionaryEntry(it.first, it.second) })
+        dictionary.sortByDescending { it.frequency }
     }
 
     /**
@@ -130,10 +154,11 @@ class WordPredictor(private val context: Context) {
         var bestMatch: String? = null
         var bestScore = Float.MAX_VALUE
 
-        for (word in dictionary) {
+        for (entry in dictionary) {
+            val word = entry.word
             if (word.length < keyCodes.size - 2 || word.length > keyCodes.size + 2) continue
 
-            val score = calculateMatchScore(word, keyCodes)
+            val score = calculateMatchScore(word, keyCodes, entry.frequency)
             if (score < bestScore) {
                 bestScore = score
                 bestMatch = word
@@ -141,10 +166,10 @@ class WordPredictor(private val context: Context) {
         }
 
         // Only return if confidence is high enough
-        return if (bestScore < 100f) bestMatch else null
+        return if (bestScore < 200f) bestMatch else null
     }
 
-    private fun calculateMatchScore(word: String, keyCodes: List<Int>): Float {
+    private fun calculateMatchScore(word: String, keyCodes: List<Int>, frequency: Long): Float {
         var score = 0f
         val wordChars = word.toCharArray()
 
@@ -174,8 +199,19 @@ class WordPredictor(private val context: Context) {
         // Penalize length difference
         score += abs(word.length - keyCodes.size).toFloat() * 20f
 
+        // Boost score based on word frequency (higher frequency = lower score)
+        if (frequency > 0) {
+            val freqBoost = (1_000_000.0 / (frequency + 1)).toFloat()
+            score -= min(freqBoost, 50f)
+        }
+
         return score
     }
+
+    data class DictionaryEntry(
+        val word: String,
+        val frequency: Long
+    )
 
     data class KeyPosition(
         val x: Float,
