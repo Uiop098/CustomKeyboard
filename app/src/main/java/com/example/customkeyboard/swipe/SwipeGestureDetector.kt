@@ -6,7 +6,6 @@ import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import android.view.MotionEvent
 import android.view.View
-import kotlin.math.abs
 
 /**
  * Detects swipe gestures on the keyboard and maps them to key paths.
@@ -103,7 +102,7 @@ class SwipeGestureDetector(
         when (gestureStartKey) {
             Keyboard.KEYCODE_DELETE -> {
                 // Swipe left on backspace = delete word
-                if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+if (dx < -minGestureDistance && Math.abs(dy) < minGestureDistance) {
                     onGestureDelete()
                     touchPoints.clear()
                     isSwiping = false
@@ -111,13 +110,13 @@ class SwipeGestureDetector(
             }
             32 -> { // Space key
                 // Swipe right on space = move cursor right
-                if (dx > minGestureDistance && abs(dy) < minGestureDistance) {
+                if (dx > minGestureDistance && Math.abs(dy) < minGestureDistance) {
                     onGestureCursorMove(1)
                     touchPoints.clear()
                     isSwiping = false
                 }
                 // Swipe left on space = move cursor left
-                else if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+else if (dx < -minGestureDistance && Math.abs(dy) < minGestureDistance) {
                     onGestureCursorMove(-1)
                     touchPoints.clear()
                     isSwiping = false
@@ -125,7 +124,7 @@ class SwipeGestureDetector(
             }
             else -> {
                 // Swipe up on letter key = capitalize
-                if (dy < -minGestureDistance && abs(dx) < minGestureDistance) {
+                if (dy < -minGestureDistance && Math.abs(dx) < minGestureDistance) {
                     onGestureCapitalize()
                     touchPoints.clear()
                     isSwiping = false
@@ -147,19 +146,19 @@ class SwipeGestureDetector(
         if (distance < minSwipeDistance && distance > minGestureDistance) {
             when (gestureStartKey) {
                 Keyboard.KEYCODE_DELETE -> {
-                    if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+if (dx < -minGestureDistance && Math.abs(dy) < minGestureDistance) {
                         onGestureDelete()
                     }
                 }
                 32 -> { // Space key
-                    if (dx > minGestureDistance && abs(dy) < minGestureDistance) {
+if (dx > minGestureDistance && Math.abs(dy) < minGestureDistance) {
                         onGestureCursorMove(1)
-                    } else if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+                    } else if (dx < -minGestureDistance && Math.abs(dy) < minGestureDistance) {
                         onGestureCursorMove(-1)
                     }
                 }
                 else -> {
-                    if (dy < -minGestureDistance && abs(dx) < minGestureDistance) {
+if (dy < -minGestureDistance && Math.abs(dx) < minGestureDistance) {
                         onGestureCapitalize()
                     }
                 }
