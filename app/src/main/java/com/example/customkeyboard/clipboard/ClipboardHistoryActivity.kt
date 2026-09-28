@@ -163,13 +163,6 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             builder.setTitle("Add Clipboard Item")
         }
 
-        val positiveListener = object : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface, which: Int) {
-                val text = etText.text.toString().trim()
-                val label = etLabel.text.toString().trim()
-                val category = etCategory.text.toString().trim()
-                val pinned = switchPin.isChecked
-
                 if (text.isNotEmpty()) {
                     if (isEditing) {
                         clipboardManager.updateItem(

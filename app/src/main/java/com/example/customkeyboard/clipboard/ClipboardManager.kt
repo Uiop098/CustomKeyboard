@@ -30,7 +30,7 @@ data class ClipboardItem(
 /**
  * Type token for ArrayList<ClipboardItem> serialization
  */
-private class ClipboardItemListType : TypeToken<ArrayList<ClipboardItem>>() {}
+private val typeToken = object : TypeToken<ArrayList<ClipboardItem>>() {}.type
 
 /**
  * Manages clipboard history with persistence, auto-cleanup, pin, and edit features
@@ -39,7 +39,7 @@ class ClipboardManager(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("clipboard_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private val type: Type = ClipboardItemListType().type
+    private val type: Type = typeToken
 
     // Configuration
     private val maxItems = 100

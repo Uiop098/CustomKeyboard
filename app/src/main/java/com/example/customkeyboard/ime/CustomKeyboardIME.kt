@@ -100,7 +100,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         // Initialize word predictor with keyboard view
         wordPredictor.setKeyboardView(keyboardView)
-        wordPredictor.setPrefs(prefs)
+        wordPredictor.setPrefsWrapper(prefs)
 
         setupEmojiPicker(root)
         return root

@@ -32,6 +32,10 @@ class WordPredictor(private val context: Context) {
         this.prefs = prefs
     }
 
+    fun setPrefsWrapper(prefs: com.example.customkeyboard.data.Prefs) {
+        this.prefs = prefs.prefs
+    }
+
     private fun loadDictionary() {
         try {
             // Load from raw resource with frequency data

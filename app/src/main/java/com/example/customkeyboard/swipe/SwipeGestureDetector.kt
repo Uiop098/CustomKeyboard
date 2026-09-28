@@ -6,6 +6,7 @@ import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.abs
 
 /**
  * Detects swipe gestures on the keyboard and maps them to key paths.
@@ -43,7 +44,7 @@ class SwipeGestureDetector(
                 touchPoints.clear()
                 addTouchPoint(event)
                 isSwiping = false
-                gestureStartKey = getKeyAtPoint(event.x, event.y)
+                gestureStartKey = findKeyAtPoint(event.x, event.y)
             }
             MotionEvent.ACTION_MOVE -> {
                 addTouchPoint(event)
