@@ -39,12 +39,12 @@
         <Key android:codes="118" android:keyLabel="v" android:popupCharacters="/" />
         <Key android:codes="98" android:keyLabel="b" android:popupCharacters="(" />
         <Key android:codes="110" android:keyLabel="n" android:popupCharacters=")" />
-        <Key android:codes="39" android:keyLabel="'" android:popupCharacters="\"" />
+        <Key android:codes="39" android:keyLabel="'" android:popupCharacters="&quot;" />
         <Key android:codes="-5" android:keyLabel="⌫" android:keyWidth="15%p" android:isRepeatable="true" android:keyEdgeFlags="right" />
     </Row>
 
     <Row android:rowEdgeFlags="bottom">
-        <Key android:codes="-2" android:keyLabel="?123" android:keyWidth="15%p" android:keyEdgeFlags="left" />
+        <Key android:codes="-2" android:keyLabel="\?123" android:keyWidth="15%p" android:keyEdgeFlags="left" />
         <Key android:codes="-100" android:keyLabel="😊" android:keyWidth="10%p" />
         <Key android:codes="44" android:keyLabel="," android:keyWidth="10%p" />
         <Key android:codes="32" android:keyLabel="space" android:keyWidth="35%p" android:isRepeatable="true" />

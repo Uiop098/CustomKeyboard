@@ -33,6 +33,7 @@ import com.example.customkeyboard.data.EmojiData
 import com.example.customkeyboard.clipboard.ClipboardManager
 import com.example.customkeyboard.clipboard.ClipAdapter
 import com.example.customkeyboard.clipboard.ClipboardHistoryActivity
+import com.example.customkeyboard.ui.MainActivity
 
 @Suppress("DEPRECATION")
 class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionListener {
@@ -61,6 +62,13 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     private var currentLayoutIndex = 0
     private val layouts = listOf("QWERTY", "AZERTY", "QWERTZ")
+    private var root: View? = null
+
+    fun charForCode(code: Int): String? = when (code) {
+        -100, -200, Keyboard.KEYCODE_DELETE, Keyboard.KEYCODE_DONE, Keyboard.KEYCODE_CANCEL,
+        Keyboard.KEYCODE_MODE_CHANGE, Keyboard.KEYCODE_SHIFT, 0 -> null
+        else -> code.toChar().toString()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -90,16 +98,16 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
     @SuppressLint("InflateParams")
     private fun createInputView(): View {
-        val root = layoutInflater.inflate(R.layout.keyboard_container, null)
-        keyboardView = root.findViewById(R.id.keyboard_view)
-        emojiContainer = root.findViewById(R.id.emoji_container)
-        quickClipboardContainer = root.findViewById(R.id.quick_clipboard_container)
-        featuresRow = root.findViewById(R.id.features_row)
-        suggestionsRow = root.findViewById(R.id.suggestions_row)
+        root = layoutInflater.inflate(R.layout.keyboard_container, null)
+        keyboardView = root!!.findViewById(R.id.keyboard_view)
+        emojiContainer = root!!.findViewById(R.id.emoji_container)
+        quickClipboardContainer = root!!.findViewById(R.id.quick_clipboard_container)
+        featuresRow = root!!.findViewById(R.id.features_row)
+        suggestionsRow = root!!.findViewById(R.id.suggestions_row)
 
-        tvSuggestion1 = root.findViewById(R.id.tv_suggestion_1)
-        tvSuggestion2 = root.findViewById(R.id.tv_suggestion_2)
-        tvSuggestion3 = root.findViewById(R.id.tv_suggestion_3)
+        tvSuggestion1 = root!!.findViewById(R.id.tv_suggestion_1)
+        tvSuggestion2 = root!!.findViewById(R.id.tv_suggestion_2)
+        tvSuggestion3 = root!!.findViewById(R.id.tv_suggestion_3)
 
         keyboardEngine = KeyboardEngine(this, keyboardView)
         applyCurrentLayout()
@@ -124,14 +132,14 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         wordPredictor.setKeyboardView(keyboardView)
         wordPredictor.setPrefs(prefs)
 
-        setupEmojiPicker(root)
-        setupQuickClipboard(root)
-        setupFeatureButtons(root)
+        setupEmojiPicker(root!!)
+        setupQuickClipboard(root!!)
+        setupFeatureButtons(root!!)
         setupSuggestionButtons()
 
-        updateQuickClipPreview(root)
+        updateQuickClipPreview(root!!)
 
-        return root
+        return root!!
     }
 
     private fun applyCurrentLayout() {
@@ -189,7 +197,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         tvSuggestion2?.setOnClickListener(listener)
         tvSuggestion3?.setOnClickListener(listener)
 
-        findViewById<View>(R.id.btn_back_to_features)?.setOnClickListener {
+        root?.findViewById<View>(R.id.btn_back_to_features)?.setOnClickListener {
             toggleSuggestionsRow(false)
         }
     }
@@ -317,7 +325,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     }
 
     private fun updateSuggestions() {
-        val ic = currentInputConnection ?: return
+        currentInputConnection ?: return
         val currentWord = getCurrentWord()
         if (currentWord.length >= 2) {
             val suggestions = wordPredictor.getSuggestions(currentWord, 3)

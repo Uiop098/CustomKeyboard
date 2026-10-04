@@ -94,6 +94,10 @@ class Prefs(context: Context) {
         get() = prefs.getString("current_language", "en") ?: "en"
         set(value) = prefs.edit().putString("current_language", value).apply()
 
+    var accentColor: Int
+        get() = prefs.getInt("accent_color", 0xFF3B82F6.toInt())
+        set(value) = prefs.edit().putInt("accent_color", value).apply()
+
     var showSuggestionBar: Boolean
         get() = prefs.getBoolean("show_suggestion_bar", true)
         set(value) = prefs.edit().putBoolean("show_suggestion_bar", value).apply()

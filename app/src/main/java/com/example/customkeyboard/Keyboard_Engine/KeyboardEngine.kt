@@ -8,6 +8,11 @@ import com.example.customkeyboard.swipe.SwipeKeyboardView
 class KeyboardEngine(private val context: Context, private val keyboardView: SwipeKeyboardView) {
 
     val qwertyKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_qwerty)
+    val qwertyNumbersKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_qwerty_numbers)
+    val azertyKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_azerty)
+    val azertyNumbersKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_azerty_numbers)
+    val qwertzKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_qwertz)
+    val qwertzNumbersKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_qwertz_numbers)
     val symbolsKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_symbols)
     val numbersKeyboard: Keyboard = Keyboard(context, R.xml.keyboard_numbers)
 
@@ -15,7 +20,10 @@ class KeyboardEngine(private val context: Context, private val keyboardView: Swi
         private set
 
     enum class LayoutMode {
-        QWERTY, SYMBOLS, NUMBERS
+        QWERTY, QWERTY_NUMBERS,
+        AZERTY, AZERTY_NUMBERS,
+        QWERTZ, QWERTZ_NUMBERS,
+        SYMBOLS, NUMBERS
     }
 
     // One-handed mode
@@ -30,6 +38,11 @@ class KeyboardEngine(private val context: Context, private val keyboardView: Swi
         currentMode = mode
         when (mode) {
             LayoutMode.QWERTY -> keyboardView.keyboard = qwertyKeyboard
+            LayoutMode.QWERTY_NUMBERS -> keyboardView.keyboard = qwertyNumbersKeyboard
+            LayoutMode.AZERTY -> keyboardView.keyboard = azertyKeyboard
+            LayoutMode.AZERTY_NUMBERS -> keyboardView.keyboard = azertyNumbersKeyboard
+            LayoutMode.QWERTZ -> keyboardView.keyboard = qwertzKeyboard
+            LayoutMode.QWERTZ_NUMBERS -> keyboardView.keyboard = qwertzNumbersKeyboard
             LayoutMode.SYMBOLS -> keyboardView.keyboard = symbolsKeyboard
             LayoutMode.NUMBERS -> keyboardView.keyboard = numbersKeyboard
         }
@@ -38,18 +51,19 @@ class KeyboardEngine(private val context: Context, private val keyboardView: Swi
     }
 
     fun toggleSymbols() {
-        if (currentMode == LayoutMode.QWERTY) {
+        if (currentMode != LayoutMode.SYMBOLS) {
             switchTo(LayoutMode.SYMBOLS)
         } else {
+            // Revert to primary based on prefs or default
             switchTo(LayoutMode.QWERTY)
         }
     }
 
     fun toggleNumbers() {
-        if (currentMode == LayoutMode.NUMBERS) {
-            switchTo(LayoutMode.QWERTY)
-        } else {
+        if (currentMode != LayoutMode.NUMBERS) {
             switchTo(LayoutMode.NUMBERS)
+        } else {
+            switchTo(LayoutMode.QWERTY)
         }
     }
 
@@ -62,8 +76,6 @@ class KeyboardEngine(private val context: Context, private val keyboardView: Swi
 
     private fun applyOneHandedMode() {
         if (!isOneHandedMode) return
-        // One-handed mode logic would adjust key positions here
-        // For now, we just mark the mode and handle it in the layout
     }
 
     fun getKeyboardView(): SwipeKeyboardView = keyboardView
