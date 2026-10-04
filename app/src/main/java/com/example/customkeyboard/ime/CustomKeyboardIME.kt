@@ -221,6 +221,8 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
             if (action == ClipAdapter.Action.PASTE) {
                 currentInputConnection?.commitText(item.text, 1)
                 toggleQuickClipboard(false)
+                // Hide feature row after paste
+                toggleSuggestionsRow(false)
             }
         }
         rvQuickClips.adapter = adapter
@@ -243,6 +245,8 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
             tvQuickClip.visibility = View.VISIBLE
             tvQuickClip.setOnClickListener {
                 currentInputConnection?.commitText(lastClip.text, 1)
+                // Hide feature row after paste
+                toggleSuggestionsRow(false)
             }
         } else {
             tvQuickClip.visibility = View.GONE
