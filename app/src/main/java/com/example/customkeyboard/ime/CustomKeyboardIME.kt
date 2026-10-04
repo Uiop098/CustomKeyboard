@@ -64,7 +64,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private val layouts = listOf("QWERTY", "AZERTY", "QWERTZ")
     private var root: View? = null
 
-    fun charForCode(code: Int): String? = when (code) {
+    internal fun charForCode(code: Int): String? = when (code) {
         -100, -200, Keyboard.KEYCODE_DELETE, Keyboard.KEYCODE_DONE, Keyboard.KEYCODE_CANCEL,
         Keyboard.KEYCODE_MODE_CHANGE, Keyboard.KEYCODE_SHIFT, 0 -> null
         else -> code.toChar().toString()

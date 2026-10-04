@@ -1,37 +1,38 @@
 package com.example.customkeyboard
 
-import com.example.customkeyboard.ime.charForCode
+import com.example.customkeyboard.ime.CustomKeyboardIME
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class KeyCodeResolverTest {
+    private val ime = CustomKeyboardIME()
 
     @Test
     fun actionCodesReturnNull() {
-        assertNull(charForCode(-100))
-        assertNull(charForCode(-200)) // <= symbols
-        assertNull(charForCode(-5)) // delete
-        assertNull(charForCode(-4)) // done
-        assertNull(charForCode(-3)) // cancel
-        assertNull(charForCode(-2)) // mode switch
-        assertNull(charForCode(-1)) // shift
-        assertNull(charForCode(0))
+        assertNull(ime.charForCode(-100))
+        assertNull(ime.charForCode(-200)) // <= symbols
+        assertNull(ime.charForCode(-5)) // delete
+        assertNull(ime.charForCode(-4)) // done
+        assertNull(ime.charForCode(-3)) // cancel
+        assertNull(ime.charForCode(-2)) // mode switch
+        assertNull(ime.charForCode(-1)) // shift
+        assertNull(ime.charForCode(0))
     }
 
     @Test
     fun letterCodesMapToText() {
-        assertEquals("a", charForCode('a'.code))
-        assertEquals("A", charForCode('A'.code))
-        assertEquals(" ", charForCode(' '.code))
+        assertEquals("a", ime.charForCode('a'.code))
+        assertEquals("A", ime.charForCode('A'.code))
+        assertEquals(" ", ime.charForCode(' '.code))
     }
 
     @Test
     fun symbolCodesMapToText() {
-        assertEquals("@", charForCode(64))
-        assertEquals("#", charForCode(35))
-        assertEquals("&", charForCode(38))
-        assertEquals(",", charForCode(44))
-        assertEquals("\u000A", charForCode(10)) // enter
+        assertEquals("@", ime.charForCode(64))
+        assertEquals("#", ime.charForCode(35))
+        assertEquals("&", ime.charForCode(38))
+        assertEquals(",", ime.charForCode(44))
+        assertEquals("\u000A", ime.charForCode(10)) // enter
     }
 }
