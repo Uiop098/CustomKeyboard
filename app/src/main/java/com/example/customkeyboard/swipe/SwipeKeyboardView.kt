@@ -10,9 +10,11 @@ import android.graphics.PointF
 import android.graphics.Shader
 import android.inputmethodservice.KeyboardView
 import android.util.AttributeSet
+import android.view.MotionEvent
 
 /**
  * Custom KeyboardView that draws swipe trail with gradient visualization
+ * and passes events to SwipeGestureDetector properly.
  */
 class SwipeKeyboardView @JvmOverloads constructor(
     context: Context,
@@ -21,32 +23,18 @@ class SwipeKeyboardView @JvmOverloads constructor(
 ) : KeyboardView(context, attrs, defStyleAttr) {
 
     private var swipePoints: List<PointF> = emptyList()
-    private var isSwiping = false
+    var isSwiping = false
 
     private val swipePaint = Paint().apply {
         style = Paint.Style.STROKE
-        strokeWidth = 8f
+        strokeWidth = 10f
         isAntiAlias = true
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
     }
 
-    private val startPointPaint = Paint().apply {
-        style = Paint.Style.FILL
-        isAntiAlias = true
-    }
-
-    private val endPointPaint = Paint().apply {
-        style = Paint.Style.FILL
-        isAntiAlias = true
-    }
-
-    private val trailWidthPaint = Paint().apply {
-        style = Paint.Style.STROKE
-        isAntiAlias = true
-        strokeCap = Paint.Cap.ROUND
-        strokeJoin = Paint.Join.ROUND
-    }
+    // Detector hooked from outside
+    var swipeDetector: SwipeGestureDetector? = null
 
     fun setSwipePoints(points: List<PointF>, swiping: Boolean) {
         swipePoints = points
@@ -58,6 +46,24 @@ class SwipeKeyboardView @JvmOverloads constructor(
         swipePoints = emptyList()
         isSwiping = false
         invalidate()
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val detectorConsumed = swipeDetector?.onInterceptTouchEvent(event) ?: false
+
+        if (detectorConsumed) {
+            // Cancel normal key press in parent if we started swiping
+            if (event.actionMasked == MotionEvent.ACTION_MOVE && swipePoints.size > 2) {
+                val cancelEvent = MotionEvent.obtain(event)
+                cancelEvent.action = MotionEvent.ACTION_CANCEL
+                super.onTouchEvent(cancelEvent)
+                cancelEvent.recycle()
+            }
+            return true
+        }
+
+        // Allow normal key presses to work 100% of the time!
+        return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -150,11 +156,11 @@ class SwipeKeyboardView @JvmOverloads constructor(
                 val p1 = swipePoints[i]
                 val p2 = swipePoints[i + 1]
                 val angle = Math.atan2((p2.y - p1.y).toDouble(), (p2.x - p1.x).toDouble())
-                
+
                 val arrowSize = 12f
                 val cx = p1.x
                 val cy = p1.y
-                
+
                 val path = android.graphics.Path()
                 path.moveTo(
                     (cx + arrowSize * Math.cos(angle)).toFloat(),
@@ -169,7 +175,7 @@ class SwipeKeyboardView @JvmOverloads constructor(
                     (cy + arrowSize * Math.sin(angle - 2.5)).toFloat()
                 )
                 path.close()
-                
+
                 canvas.drawPath(path, arrowPaint)
             }
         }

@@ -1,56 +1,281 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboard_root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/keyboard_bg_dark">
 
-    <com.example.customkeyboard.swipe.SwipeKeyboardView
-        android:id="@+id/keyboard_view"
+    <!-- Top Features & Suggestions Strip -->
+    <FrameLayout
+        android:id="@+id/top_strip_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:keyBackground="@drawable/key_background"
-        android:keyTextColor="@color/text_primary"
-        android:keyTextSize="22sp"
-        android:shadowColor="@android:color/transparent"
-        android:shadowRadius="0.0" />
+        android:layout_height="44dp"
+        android:background="@drawable/bg_top_strip">
 
-    <LinearLayout
-        android:id="@+id/emoji_container"
-        android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:background="@color/keyboard_bg_dark">
-
+        <!-- Features Row (Default/Idle Mode) -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="12dp">
-
-            <Button
-                android:id="@+id/btn_back_to_keyboard"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:text="@string/label_abc"
-                android:textSize="12sp"
-                android:backgroundTint="@color/key_bg_dark" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/label_emojis"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/emoji_recycler"
+            android:id="@+id/features_row"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="4dp">
 
-</FrameLayout>
+            <ImageButton
+                android:id="@+id/btn_strip_toggle"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_chevron_right"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Toggle features" />
+
+            <ImageButton
+                android:id="@+id/btn_feature_clipboard"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_clipboard"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Clipboard History" />
+
+            <ImageButton
+                android:id="@+id/btn_feature_settings"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_settings"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Settings" />
+
+            <ImageButton
+                android:id="@+id/btn_feature_numbers"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_number_row"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Toggle Number Row" />
+
+            <ImageButton
+                android:id="@+id/btn_feature_layout"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_layout"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Switch Layout" />
+
+            <ImageButton
+                android:id="@+id/btn_feature_theme"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_palette"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Switch Theme" />
+
+            <!-- Recent Clip quick button (if any) -->
+            <TextView
+                android:id="@+id/tv_quick_clip"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:paddingHorizontal="10dp"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:background="@drawable/bg_suggestion_item"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- 3-Column Auto-Suggestion & Auto-Correction Strip -->
+        <LinearLayout
+            android:id="@+id/suggestions_row"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="4dp"
+            android:visibility="gone">
+
+            <!-- Toggle back to features -->
+            <ImageButton
+                android:id="@+id/btn_back_to_features"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_chevron_right"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Show features"
+                android:rotation="180" />
+
+            <!-- Column 1 (Left): Secondary suggestion -->
+            <TextView
+                android:id="@+id/tv_suggestion_1"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:background="@drawable/bg_suggestion_item" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="18dp"
+                android:background="@color/m3_outline_variant" />
+
+            <!-- Column 2 (Center): Primary Auto-Correction / Prediction -->
+            <TextView
+                android:id="@+id/tv_suggestion_2"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1.2"
+                android:layout_marginHorizontal="4dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/suggestion_center_text"
+                android:background="@drawable/bg_suggestion_center" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="18dp"
+                android:background="@color/m3_outline_variant" />
+
+            <!-- Column 3 (Right): Secondary suggestion -->
+            <TextView
+                android:id="@+id/tv_suggestion_3"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:background="@drawable/bg_suggestion_item" />
+
+            <!-- Quick Clipboard Icon from suggestion row -->
+            <ImageButton
+                android:id="@+id/btn_sugg_clipboard"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_clipboard"
+                android:background="@drawable/bg_feature_btn"
+                android:contentDescription="Clipboard" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Keyboard Content Area -->
+    <FrameLayout
+        android:id="@+id/keyboard_content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.example.customkeyboard.swipe.SwipeKeyboardView
+            android:id="@+id/keyboard_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:keyBackground="@drawable/key_background"
+            android:keyTextColor="@color/text_primary"
+            android:keyTextSize="22sp"
+            android:shadowColor="@android:color/transparent"
+            android:shadowRadius="0.0" />
+
+        <!-- Emoji Picker Container -->
+        <LinearLayout
+            android:id="@+id/emoji_container"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="@color/keyboard_bg_dark">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <Button
+                    android:id="@+id/btn_back_to_keyboard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="@string/label_abc"
+                    android:textSize="12sp"
+                    android:backgroundTint="@color/key_bg_dark" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/label_emojis"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/emoji_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <!-- Quick Clipboard Container inside Keyboard -->
+        <LinearLayout
+            android:id="@+id/quick_clipboard_container"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="@color/keyboard_bg_dark">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <Button
+                    android:id="@+id/btn_close_quick_clip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="@string/label_abc"
+                    android:textSize="12sp"
+                    android:backgroundTint="@color/key_bg_dark" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Clipboard History"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btn_open_full_clipboard"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_settings"
+                    android:background="@drawable/bg_feature_btn"
+                    android:contentDescription="Full Clipboard Settings" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_quick_clips"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="4dp" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

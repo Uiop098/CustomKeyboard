@@ -3,7 +3,6 @@ package com.example.customkeyboard.swipe
 import android.content.Context
 import android.graphics.PointF
 import android.inputmethodservice.Keyboard
-import android.inputmethodservice.KeyboardView
 import android.view.MotionEvent
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -16,9 +15,10 @@ import kotlin.math.sqrt
  * - Swipe left on space: Move cursor left
  * - Swipe up on keys: Capitalize
  */
+@Suppress("DEPRECATION")
 class SwipeGestureDetector(
     private val context: Context,
-    private val keyboardView: KeyboardView,
+    private val keyboardView: SwipeKeyboardView,
     private val onSwipeComplete: (List<PointF>) -> Unit,
     private val onGestureDelete: () -> Unit,
     private val onGestureCursorMove: (Int) -> Unit, // -1 for left, 1 for right
@@ -27,56 +27,84 @@ class SwipeGestureDetector(
 
     private val touchPoints = mutableListOf<PointF>()
     private var isSwiping = false
-    private val minSwipeDistance = 50f // pixels
-    private val minGestureDistance = 30f // pixels for special gestures
+    private val minSwipeDistance = 45f // pixels
+    private val minGestureDistance = 35f // pixels for special gestures
     private var gestureStartKey: Int = -1
 
     init {
-        keyboardView.setOnTouchListener { _, event ->
-            onTouchEvent(event)
-            true // Consume touch events
-        }
+        // Link with SwipeKeyboardView
+        keyboardView.swipeDetector = this
     }
 
-    private fun onTouchEvent(event: MotionEvent): Boolean {
+    /**
+     * Intercepts and processes touch events for gestures and swiping.
+     * Returns true when the event should be consumed (i.e. swipe is happening),
+     * or false when normal key clicking should proceed.
+     */
+    fun onInterceptTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 touchPoints.clear()
                 addTouchPoint(event)
                 isSwiping = false
                 gestureStartKey = getKeyAtPoint(event.x, event.y)
+                return false // Allow normal key down to proceed
             }
+
             MotionEvent.ACTION_MOVE -> {
                 addTouchPoint(event)
                 val distance = calculateDistance()
                 if (distance > minSwipeDistance) {
                     isSwiping = true
-                    keyboardView.invalidate() // Trigger redraw for swipe trail
+                    keyboardView.setSwipePoints(touchPoints, true)
+                    return true // Consume as swipe
                 } else if (distance > minGestureDistance) {
-                    // Check for special gestures
-                    checkSpecialGestures()
+                    // Check for special gestures (spacebar cursor move, backspace delete word)
+                    if (checkSpecialGestures()) {
+                        return true
+                    }
                 }
+                return isSwiping
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+
+            MotionEvent.ACTION_UP -> {
                 if (isSwiping && touchPoints.size >= 2) {
                     onSwipeComplete(touchPoints.toList())
-                } else if (gestureStartKey != -1) {
-                    // Check for short gestures
-                    checkShortGestures()
+                    touchPoints.clear()
+                    isSwiping = false
+                    gestureStartKey = -1
+                    keyboardView.clearSwipe()
+                    return true // Swiped word committed, consume
                 }
+
+                if (gestureStartKey != -1 && checkShortGestures()) {
+                    touchPoints.clear()
+                    isSwiping = false
+                    gestureStartKey = -1
+                    keyboardView.clearSwipe()
+                    return true
+                }
+
                 touchPoints.clear()
                 isSwiping = false
                 gestureStartKey = -1
-                keyboardView.invalidate()
+                keyboardView.clearSwipe()
+                return false // Allow normal key press to register!
+            }
+
+            MotionEvent.ACTION_CANCEL -> {
+                touchPoints.clear()
+                isSwiping = false
+                gestureStartKey = -1
+                keyboardView.clearSwipe()
+                return false
             }
         }
-        return true
+        return false
     }
 
     private fun addTouchPoint(event: MotionEvent) {
-        val x = event.x
-        val y = event.y
-        touchPoints.add(PointF(x, y))
+        touchPoints.add(PointF(event.x, event.y))
     }
 
     private fun calculateDistance(): Float {
@@ -92,8 +120,8 @@ class SwipeGestureDetector(
         return distance
     }
 
-    private fun checkSpecialGestures() {
-        if (gestureStartKey == -1 || touchPoints.size < 3) return
+    private fun checkSpecialGestures(): Boolean {
+        if (gestureStartKey == -1 || touchPoints.size < 3) return false
 
         val startPoint = touchPoints[0]
         val currentPoint = touchPoints[touchPoints.lastIndex]
@@ -103,39 +131,44 @@ class SwipeGestureDetector(
         when (gestureStartKey) {
             Keyboard.KEYCODE_DELETE -> {
                 // Swipe left on backspace = delete word
-                if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+                if (dx < -minGestureDistance && abs(dy) < minGestureDistance * 1.2f) {
                     onGestureDelete()
                     touchPoints.clear()
                     isSwiping = false
+                    return true
                 }
             }
             32 -> { // Space key
                 // Swipe right on space = move cursor right
-                if (dx > minGestureDistance && abs(dy) < minGestureDistance) {
+                if (dx > minGestureDistance && abs(dy) < minGestureDistance * 1.2f) {
                     onGestureCursorMove(1)
                     touchPoints.clear()
                     isSwiping = false
+                    return true
                 }
                 // Swipe left on space = move cursor left
-                else if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+                else if (dx < -minGestureDistance && abs(dy) < minGestureDistance * 1.2f) {
                     onGestureCursorMove(-1)
                     touchPoints.clear()
                     isSwiping = false
+                    return true
                 }
             }
             else -> {
                 // Swipe up on letter key = capitalize
-                if (dy < -minGestureDistance && abs(dx) < minGestureDistance) {
+                if (dy < -minGestureDistance && abs(dx) < minGestureDistance * 1.2f) {
                     onGestureCapitalize()
                     touchPoints.clear()
                     isSwiping = false
+                    return true
                 }
             }
         }
+        return false
     }
 
-    private fun checkShortGestures() {
-        if (touchPoints.size < 2) return
+    private fun checkShortGestures(): Boolean {
+        if (touchPoints.size < 2) return false
 
         val startPoint = touchPoints[0]
         val endPoint = touchPoints[touchPoints.lastIndex]
@@ -143,28 +176,32 @@ class SwipeGestureDetector(
         val dy = endPoint.y - startPoint.y
         val distance = sqrt((dx * dx + dy * dy).toDouble()).toFloat()
 
-        // Only trigger if it's a short swipe (< minSwipeDistance) but clear gesture
         if (distance < minSwipeDistance && distance > minGestureDistance) {
             when (gestureStartKey) {
                 Keyboard.KEYCODE_DELETE -> {
-                    if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+                    if (dx < -minGestureDistance && abs(dy) < minGestureDistance * 1.2f) {
                         onGestureDelete()
+                        return true
                     }
                 }
-                32 -> { // Space key
-                    if (dx > minGestureDistance && abs(dy) < minGestureDistance) {
+                32 -> {
+                    if (dx > minGestureDistance && abs(dy) < minGestureDistance * 1.2f) {
                         onGestureCursorMove(1)
-                    } else if (dx < -minGestureDistance && abs(dy) < minGestureDistance) {
+                        return true
+                    } else if (dx < -minGestureDistance && abs(dy) < minGestureDistance * 1.2f) {
                         onGestureCursorMove(-1)
+                        return true
                     }
                 }
                 else -> {
-                    if (dy < -minGestureDistance && abs(dx) < minGestureDistance) {
+                    if (dy < -minGestureDistance && abs(dx) < minGestureDistance * 1.2f) {
                         onGestureCapitalize()
+                        return true
                     }
                 }
             }
         }
+        return false
     }
 
     fun getTouchPoints(): List<PointF> = touchPoints.toList()
@@ -180,26 +217,6 @@ class SwipeGestureDetector(
         }
     }
 
-    /**
-     * Maps touch points to the nearest keys on the keyboard
-     */
-    fun mapTouchPointsToKeys(): List<Int> {
-        val keyCodes = mutableListOf<Int>()
-        val keyboard = keyboardView.keyboard ?: return keyCodes
-
-        for (point in touchPoints) {
-            val keyIndex = findKeyAtPoint(keyboard, point.x, point.y)
-            if (keyIndex >= 0) {
-                val key = keyboard.keys[keyIndex]
-                // Only add letter keys (not modifiers, space, delete, etc.)
-                if (isLetterKey(key.codes[0])) {
-                    keyCodes.add(key.codes[0])
-                }
-            }
-        }
-        return keyCodes
-    }
-
     private fun findKeyAtPoint(keyboard: Keyboard, x: Float, y: Float): Int {
         for (i in keyboard.keys.indices) {
             val key = keyboard.keys[i]
@@ -210,16 +227,4 @@ class SwipeGestureDetector(
         }
         return -1
     }
-
-    private fun isLetterKey(code: Int): Boolean {
-        return code in 'a'.toInt()..'z'.toInt() || code in 'A'.toInt()..'Z'.toInt()
-    }
-
-    data class KeyPosition(
-        val x: Float,
-        val y: Float,
-        val width: Float,
-        val height: Float,
-        val code: Int
-    )
 }

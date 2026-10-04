@@ -62,6 +62,10 @@ class Prefs(context: Context) {
         get() = prefs.getLong("long_press_delay_ms", 400L)
         set(value) = prefs.edit().putLong("long_press_delay_ms", value).apply()
 
+    var isNumberRowEnabled: Boolean
+        get() = prefs.getBoolean("number_row_enabled", false)
+        set(value) = prefs.edit().putBoolean("number_row_enabled", value).apply()
+
     var keyboardLayout: String
         get() = prefs.getString("keyboard_layout", "QWERTY") ?: "QWERTY"
         set(value) = prefs.edit().putString("keyboard_layout", value).apply()

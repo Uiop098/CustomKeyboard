@@ -120,6 +120,19 @@ class WordPredictor(private val context: Context) {
         return findBestMatch(keyCodes)
     }
 
+    /**
+     * Gets word suggestions based on typed prefix
+     */
+    fun getSuggestions(prefix: String, limit: Int = 3): List<String> {
+        val lowerPrefix = prefix.lowercase()
+        return dictionary
+            .asSequence()
+            .filter { it.word.startsWith(lowerPrefix) }
+            .take(limit)
+            .map { if (prefix.firstOrNull()?.isUpperCase() == true) it.word.replaceFirstChar { c -> c.uppercase() } else it.word }
+            .toList()
+    }
+
     private fun mapTouchPointsToKeys(touchPoints: List<PointF>): List<Int> {
         val keyCodes = mutableListOf<Int>()
         var lastCode = -1
