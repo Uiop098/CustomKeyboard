@@ -3,11 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
     android:gravity="center_vertical"
-    android:background="@android:color/darker_gray"
-    android:layout_marginHorizontal="4dp"
-    android:layout_marginVertical="4dp"
+    android:padding="10dp"
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="3dp"
+    android:background="@drawable/bg_suggestion_center"
     android:clickable="true"
     android:focusable="true">
 
@@ -20,25 +20,24 @@
         android:gravity="center"
         android:textSize="9sp"
         android:textStyle="bold"
-        android:textColor="@android:color/white"
+        android:textColor="@color/text_primary"
         android:background="@drawable/bg_category_badge"
         android:layout_marginEnd="8dp" />
 
-    <!-- Content -->
+    <!-- Content Preview -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingVertical="2dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_preview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Clipboard item"
+            android:text="Clipboard item preview"
             android:textSize="13sp"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_primary"
             android:maxLines="2"
             android:ellipsize="end" />
 
@@ -47,30 +46,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="2h ago"
+            android:text="Just now"
             android:textSize="10sp"
-            android:textColor="@android:color/darker_gray" />
+            android:textColor="@color/text_secondary" />
     </LinearLayout>
 
-    <!-- Pin button -->
-    <ImageButton
+    <!-- Pin Action Button -->
+    <ImageView
         android:id="@+id/iv_pin"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/ic_pin_outline"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Toggle pin"
         android:layout_marginStart="4dp"
-        android:scaleType="centerInside" />
+        android:background="@drawable/bg_button_simple"
+        android:contentDescription="Pin item"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_pin_outline" />
 
-    <!-- Menu button -->
-    <ImageButton
+    <!-- Menu / More Action Button -->
+    <ImageView
         android:id="@+id/iv_menu"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/ic_more_vert"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_button_simple"
         android:contentDescription="More options"
-        android:layout_marginStart="2dp"
-        android:scaleType="centerInside" />
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_more_vert" />
 </LinearLayout>

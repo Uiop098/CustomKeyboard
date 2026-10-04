@@ -7,6 +7,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.customkeyboard.clipboard.ClipboardHistoryActivity
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         val btnEnable = findViewById<Button>(R.id.btn_enable_keyboard)
         val btnSelect = findViewById<Button>(R.id.btn_select_keyboard)
+        val btnThemeSettings = findViewById<Button>(R.id.btn_theme_settings)
         val btnSoundSettings = findViewById<Button>(R.id.btn_sound_settings)
         val btnClipboardHistory = findViewById<Button>(R.id.btn_clipboard_history)
         val btnOneHandedMode = findViewById<Button>(R.id.btn_one_handed_mode)
@@ -34,8 +36,21 @@ class MainActivity : AppCompatActivity() {
         val switchSound = findViewById<SwitchMaterial>(R.id.switch_sound)
         val switchVibrate = findViewById<SwitchMaterial>(R.id.switch_vibrate)
         val switchPopup = findViewById<SwitchMaterial>(R.id.switch_popup)
+        val seekHeight = findViewById<SeekBar>(R.id.seek_keyboard_height)
         val crashBanner = findViewById<TextView>(R.id.tv_crash_report)
         val crashClear = findViewById<Button>(R.id.btn_clear_crash)
+
+        // Keyboard Height slider
+        seekHeight.progress = prefs.keyboardHeightPercent - 70
+        seekHeight.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    prefs.keyboardHeightPercent = progress + 70
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
 
         // If a crash was captured on a previous run, surface it so it can be diagnosed.
         val crashLog = CrashLogger.readLog(this)
@@ -64,6 +79,11 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("MainActivity", "showInputMethodPicker failed", e)
             }
+        }
+
+        // Open theme settings
+        btnThemeSettings.setOnClickListener {
+            startActivity(Intent(this, ThemeSettingsActivity::class.java))
         }
 
         // Open sound settings

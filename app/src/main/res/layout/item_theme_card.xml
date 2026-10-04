@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="140dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginEnd="12dp"
+    android:padding="10dp"
+    android:background="@drawable/bg_suggestion_center"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Mini Keyboard Palette Preview -->
+    <LinearLayout
+        android:id="@+id/layout_preview_box"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="6dp"
+        android:background="@drawable/bg_edit_text">
+
+        <!-- Row 1 keys -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <View
+                android:id="@+id/v_key_1"
+                android:layout_width="0dp"
+                android:layout_height="12dp"
+                android:layout_weight="1"
+                android:layout_margin="1dp"
+                android:background="@color/key_bg_dark" />
+            <View
+                android:id="@+id/v_key_2"
+                android:layout_width="0dp"
+                android:layout_height="12dp"
+                android:layout_weight="1"
+                android:layout_margin="1dp"
+                android:background="@color/key_bg_dark" />
+            <View
+                android:id="@+id/v_key_3"
+                android:layout_width="0dp"
+                android:layout_height="12dp"
+                android:layout_weight="1"
+                android:layout_margin="1dp"
+                android:background="@color/accent_blue" />
+        </LinearLayout>
+
+        <!-- Spacebar key -->
+        <View
+            android:id="@+id/v_key_space"
+            android:layout_width="60dp"
+            android:layout_height="12dp"
+            android:layout_marginTop="3dp"
+            android:background="@color/key_bg_dark" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_theme_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Material You"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/tv_theme_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Active"
+        android:textSize="10sp"
+        android:textColor="@color/accent_green" />
+</LinearLayout>

@@ -1,12 +1,14 @@
 package com.example.customkeyboard.clipboard
 
+import android.content.ClipData
+import android.content.ClipboardManager as SystemClipboardManager
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import java.util.UUID
 
 /**
- * Data model for clipboard items
+ * Data model for clipboard items.
  */
 data class ClipboardItem(
     val id: String = UUID.randomUUID().toString(),
@@ -17,7 +19,8 @@ data class ClipboardItem(
     var category: String = "General"
 ) {
     fun getPreview(): String {
-        return if (text.length > 50) "${text.substring(0, 50)}..." else text
+        val trimmed = text.trim()
+        return if (trimmed.length > 50) "${trimmed.substring(0, 50)}…" else trimmed
     }
 
     fun getDisplayText(): String {
@@ -26,19 +29,17 @@ data class ClipboardItem(
 }
 
 /**
- * Manages clipboard history with persistence, auto-cleanup, pin, search, and import/export features
+ * Manages clipboard history with persistence, auto-cleanup, pin, search, and system clipboard sync.
  */
 class ClipboardManager(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("clipboard_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
 
-    // Configuration
     private val maxItems = 100
     private val maxAgeDays = 30
     private val autoCleanupEnabled = true
 
-    // In-memory cache
     private var cachedItems: List<ClipboardItem>? = null
 
     init {
@@ -60,7 +61,32 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Get all clipboard items (pinned first, then by timestamp desc)
+     * Synchronizes any new text from the Android system clipboard.
+     */
+    fun syncFromSystemClipboard(systemClipboard: SystemClipboardManager?): ClipboardItem? {
+        if (systemClipboard == null) return null
+        return try {
+            if (systemClipboard.hasPrimaryClip()) {
+                val clip = systemClipboard.primaryClip
+                if (clip != null && clip.itemCount > 0) {
+                    val clipText = clip.getItemAt(0)?.text?.toString()?.trim()
+                    if (!clipText.isNullOrEmpty()) {
+                        val currentFirst = getItems().firstOrNull()?.text?.trim()
+                        if (currentFirst != clipText) {
+                            return addItem(clipText)
+                        }
+                    }
+                }
+            }
+            null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
+     * Get all clipboard items (pinned first, then by timestamp desc).
      */
     fun getItems(): List<ClipboardItem> {
         cachedItems?.let { return it }
@@ -91,26 +117,24 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Add a new clipboard item (auto-dedupe)
+     * Add a new clipboard item (auto-deduplicate).
      */
     fun addItem(text: String): ClipboardItem {
-        if (text.trim().isEmpty()) return ClipboardItem(text = "")
+        val cleanText = text.trim()
+        if (cleanText.isEmpty()) return ClipboardItem(text = "")
 
         val items = getItems().toMutableList()
 
-        // Remove exact duplicates
-        items.removeAll { it.text == text.trim() }
+        // Remove exact duplicates to move to top
+        items.removeAll { it.text == cleanText }
 
-        // Create new item
-        val newItem = ClipboardItem(text = text.trim())
+        val newItem = ClipboardItem(text = cleanText)
         items.add(0, newItem)
 
-        // Auto cleanup
         if (autoCleanupEnabled) {
             cleanup(items)
         }
 
-        // Enforce max items (keep pinned)
         if (items.size > maxItems) {
             val pinned = items.filter { it.isPinned }
             val unpinned = items.filter { !it.isPinned }
@@ -124,7 +148,7 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Update an existing clipboard item (edit text, label, category, pin status)
+     * Update an existing clipboard item.
      */
     fun updateItem(
         id: String,
@@ -150,7 +174,7 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Toggle pin status
+     * Toggle pin status.
      */
     fun togglePin(id: String): Boolean {
         val items = getItems().toMutableList()
@@ -164,7 +188,7 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Delete a clipboard item
+     * Delete a clipboard item.
      */
     fun deleteItem(id: String): Boolean {
         val items = getItems().toMutableList()
@@ -174,19 +198,7 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Delete multiple items
-     */
-    fun deleteItems(ids: Set<String>): Int {
-        val items = getItems().toMutableList()
-        val initialSize = items.size
-        items.removeAll { it.id in ids }
-        val deleted = initialSize - items.size
-        if (deleted > 0) saveItems(items)
-        return deleted
-    }
-
-    /**
-     * Clear all unpinned items
+     * Clear all unpinned items.
      */
     fun clearUnpinned(): Int {
         val items = getItems().filter { it.isPinned }
@@ -196,14 +208,14 @@ class ClipboardManager(private val context: Context) {
     }
 
     /**
-     * Clear all items
+     * Clear all items.
      */
     fun clearAll() {
         saveItems(emptyList())
     }
 
     /**
-     * Search items by text
+     * Search items.
      */
     fun search(query: String): List<ClipboardItem> {
         if (query.trim().isEmpty()) return getItems()
@@ -215,23 +227,6 @@ class ClipboardManager(private val context: Context) {
         }
     }
 
-    /**
-     * Get items by category
-     */
-    fun getByCategory(category: String): List<ClipboardItem> {
-        return getItems().filter { it.category == category }
-    }
-
-    /**
-     * Get all categories
-     */
-    fun getCategories(): List<String> {
-        return getItems().map { it.category }.distinct().sorted()
-    }
-
-    /**
-     * Auto cleanup: remove old unpinned items
-     */
     private fun cleanup(items: MutableList<ClipboardItem>) {
         val cutoffTime = System.currentTimeMillis() - (maxAgeDays * 24 * 60 * 60 * 1000L)
         items.removeIf { !it.isPinned && it.timestamp < cutoffTime }
@@ -242,30 +237,16 @@ class ClipboardManager(private val context: Context) {
         prefs.edit().putString("clipboard_items", gson.toJson(cachedItems)).apply()
     }
 
-    /**
-     * Get item by ID
-     */
-    fun getItem(id: String): ClipboardItem? {
-        return getItems().firstOrNull { it.id == id }
-    }
-
-    /**
-     * Export clipboard history as JSON
-     */
     fun exportToJson(): String {
         return gson.toJson(getItems())
     }
 
-    /**
-     * Import clipboard history from JSON
-     */
     fun importFromJson(json: String): Int {
         return try {
             val importedArray = gson.fromJson(json, Array<ClipboardItem>::class.java)
             val imported = importedArray?.toList() ?: emptyList()
             val existing = getItems().toMutableList()
 
-            // Merge avoiding duplicates
             for (item in imported) {
                 if (!existing.any { it.text == item.text }) {
                     existing.add(0, item)

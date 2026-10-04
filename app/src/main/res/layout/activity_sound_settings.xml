@@ -1,89 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="?android:attr/colorBackground">
-
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sound Settings"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:paddingBottom="16dp"
-        android:textColor="?android:attr/textColorPrimary" />
-
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/switch_sound_enabled"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Enable Keyboard Sounds"
-        android:textSize="16sp"
-        android:paddingVertical="12dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Volume"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:paddingTop="24dp"
-        android:paddingBottom="8dp"
-        android:textColor="?android:attr/textColorPrimary" />
+    android:fillViewport="true"
+    android:background="@color/bg_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <SeekBar
-            android:id="@+id/seek_volume"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:max="100" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <TextView
-            android:id="@+id/tv_volume_value"
-            android:layout_width="60dp"
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="80%"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:text="Sound &amp; Audio Feedback"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Customize key click audio presets, volume, and custom audio files"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary" />
+
+        <!-- Sound Enabled Switch -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_sound_enabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="12dp"
+            android:background="@drawable/bg_suggestion_center"
+            android:text="Enable Keyboard Key Click Sounds"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <!-- Volume Slider Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="VOLUME LEVEL"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
+            android:textAllCaps="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="@drawable/bg_suggestion_center">
+
+            <SeekBar
+                android:id="@+id/seek_volume"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="100" />
+
+            <TextView
+                android:id="@+id/tv_volume_value"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="80%"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:gravity="end"
+                android:textColor="@color/accent_blue" />
+        </LinearLayout>
+
+        <!-- Sound Preset Carousel / Radio Group -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="CLICK SOUND PRESET"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
+            android:textAllCaps="true" />
+
+        <RadioGroup
+            android:id="@+id/rg_sound_presets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_suggestion_center"
+            android:padding="8dp">
+
+            <RadioButton
+                android:id="@+id/rb_sound_mechanical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="⌨️ Mechanical Switch (Blue / Tactile Click)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rb_sound_typewriter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="📜 Vintage Typewriter"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rb_sound_pop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="🫧 Bubble Pop (Soft &amp; Crisp)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rb_sound_wood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="🪵 Wood Block (Warm Percussive Tap)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rb_sound_soft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="💧 Soft Tap (Gentle &amp; Subtle)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rb_sound_system"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="📱 Android System Default Click"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <RadioButton
+                android:id="@+id/rb_sound_custom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:text="📁 Custom User Audio File (.wav / .mp3 / .ogg)"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+        </RadioGroup>
+
+        <!-- Custom Sound Action Box -->
+        <LinearLayout
+            android:id="@+id/layout_custom_sound_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="@drawable/bg_suggestion_center">
+
+            <Button
+                android:id="@+id/btn_choose_sound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📂 Choose Custom Audio File"
+                android:backgroundTint="@color/accent_purple" />
+
+            <TextView
+                android:id="@+id/tv_custom_sound_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="No custom audio file loaded"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
+        </LinearLayout>
+
+        <!-- Action Buttons -->
+        <Button
+            android:id="@+id/btn_test_sound"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="🔊 Test Click Sound"
+            android:backgroundTint="@color/accent_green" />
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Back"
+            android:textColor="@color/text_secondary"
+            android:backgroundTint="@color/key_bg_dark" />
+
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_test_sound"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Test Sound"
-        android:layout_marginTop="24dp"
-        style="?android:attr/buttonBarButtonStyle" />
-
-    <Button
-        android:id="@+id/btn_choose_sound"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose Custom Sound"
-        android:layout_marginTop="8dp"
-        style="?android:attr/buttonBarButtonStyle" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <Button
-        android:id="@+id/btn_back"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back"
-        style="?android:attr/buttonBarButtonStyle" />
-
-</LinearLayout>
+</ScrollView>

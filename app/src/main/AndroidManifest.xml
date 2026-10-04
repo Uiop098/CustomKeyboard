@@ -33,6 +33,13 @@
             android:label="Sound Settings"
             android:parentActivityName=".ui.MainActivity" />
 
+        <!-- Theme & Appearance Activity -->
+        <activity
+            android:name=".ui.ThemeSettingsActivity"
+            android:exported="false"
+            android:label="Theme &amp; Appearance"
+            android:parentActivityName=".ui.MainActivity" />
+
         <!-- Clipboard History Activity -->
         <activity
             android:name=".clipboard.ClipboardHistoryActivity"

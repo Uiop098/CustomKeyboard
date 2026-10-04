@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:background="@color/keyboard_bg_dark">
 
     <!-- Top Features & Suggestions Strip -->
@@ -176,13 +178,17 @@
     <FrameLayout
         android:id="@+id/keyboard_content_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <com.example.customkeyboard.swipe.SwipeKeyboardView
             android:id="@+id/keyboard_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:keyBackground="@drawable/key_background"
             android:keyTextColor="@color/text_primary"
             android:keyTextSize="22sp"

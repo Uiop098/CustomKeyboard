@@ -6,8 +6,9 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.widget.Button
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +19,7 @@ import com.example.customkeyboard.R
 import com.example.customkeyboard.data.Prefs
 import com.example.customkeyboard.util.SoundManager
 import com.google.android.material.switchmaterial.SwitchMaterial
+import java.io.File
 
 class SoundSettingsActivity : AppCompatActivity() {
 
@@ -27,6 +29,8 @@ class SoundSettingsActivity : AppCompatActivity() {
     private lateinit var seekVolume: SeekBar
     private lateinit var btnTestSound: Button
     private lateinit var btnChooseSound: Button
+    private lateinit var tvCustomSoundStatus: TextView
+    private lateinit var rgSoundPresets: RadioGroup
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -54,6 +58,7 @@ class SoundSettingsActivity : AppCompatActivity() {
         soundManager = SoundManager(this)
 
         setupViews()
+        updateCustomSoundStatus()
     }
 
     private fun setupViews() {
@@ -62,6 +67,8 @@ class SoundSettingsActivity : AppCompatActivity() {
         tvVolume = findViewById(R.id.tv_volume_value)
         btnTestSound = findViewById(R.id.btn_test_sound)
         btnChooseSound = findViewById(R.id.btn_choose_sound)
+        tvCustomSoundStatus = findViewById(R.id.tv_custom_sound_status)
+        rgSoundPresets = findViewById(R.id.rg_sound_presets)
 
         // Sound enabled switch
         switchSoundEnabled.isChecked = prefs.isSoundEnabled
@@ -84,13 +91,42 @@ class SoundSettingsActivity : AppCompatActivity() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            
+
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 if (prefs.isSoundEnabled) {
                     soundManager.playKeyClick()
                 }
             }
         })
+
+        // Sound Presets
+        val currentPreset = SoundManager.SoundType.fromString(prefs.selectedSoundType)
+        when (currentPreset) {
+            SoundManager.SoundType.CLICK_MECHANICAL -> findViewById<RadioButton>(R.id.rb_sound_mechanical)?.isChecked = true
+            SoundManager.SoundType.CLICK_TYPEWRITER -> findViewById<RadioButton>(R.id.rb_sound_typewriter)?.isChecked = true
+            SoundManager.SoundType.CLICK_POP -> findViewById<RadioButton>(R.id.rb_sound_pop)?.isChecked = true
+            SoundManager.SoundType.CLICK_WOOD -> findViewById<RadioButton>(R.id.rb_sound_wood)?.isChecked = true
+            SoundManager.SoundType.CLICK_SOFT -> findViewById<RadioButton>(R.id.rb_sound_soft)?.isChecked = true
+            SoundManager.SoundType.SYSTEM_DEFAULT -> findViewById<RadioButton>(R.id.rb_sound_system)?.isChecked = true
+            SoundManager.SoundType.CUSTOM_AUDIO -> findViewById<RadioButton>(R.id.rb_sound_custom)?.isChecked = true
+            else -> findViewById<RadioButton>(R.id.rb_sound_mechanical)?.isChecked = true
+        }
+
+        rgSoundPresets.setOnCheckedChangeListener { _, checkedId ->
+            val soundType = when (checkedId) {
+                R.id.rb_sound_mechanical -> SoundManager.SoundType.CLICK_MECHANICAL
+                R.id.rb_sound_typewriter -> SoundManager.SoundType.CLICK_TYPEWRITER
+                R.id.rb_sound_pop -> SoundManager.SoundType.CLICK_POP
+                R.id.rb_sound_wood -> SoundManager.SoundType.CLICK_WOOD
+                R.id.rb_sound_soft -> SoundManager.SoundType.CLICK_SOFT
+                R.id.rb_sound_system -> SoundManager.SoundType.SYSTEM_DEFAULT
+                R.id.rb_sound_custom -> SoundManager.SoundType.CUSTOM_AUDIO
+                else -> SoundManager.SoundType.CLICK_MECHANICAL
+            }
+            prefs.selectedSoundType = soundType.name
+            soundManager.playKeyClick()
+            Toast.makeText(this, "${soundType.displayName} selected", Toast.LENGTH_SHORT).show()
+        }
 
         // Test sound button
         btnTestSound.setOnClickListener {
@@ -110,10 +146,24 @@ class SoundSettingsActivity : AppCompatActivity() {
         updateUIState(prefs.isSoundEnabled)
     }
 
+    private fun updateCustomSoundStatus() {
+        val customFile = File(filesDir, "custom_click_sound.bin")
+        if (customFile.exists() && customFile.length() > 0) {
+            tvCustomSoundStatus.text = "Custom audio active: (${customFile.length() / 1024} KB)"
+            tvCustomSoundStatus.setTextColor(0xFF10B981.toInt())
+        } else {
+            tvCustomSoundStatus.text = "No custom audio file loaded"
+            tvCustomSoundStatus.setTextColor(0xFF94A3B8.toInt())
+        }
+    }
+
     private fun updateUIState(enabled: Boolean) {
         seekVolume.isEnabled = enabled
         btnTestSound.isEnabled = enabled
         btnChooseSound.isEnabled = enabled
+        for (i in 0 until rgSoundPresets.childCount) {
+            rgSoundPresets.getChildAt(i).isEnabled = enabled
+        }
     }
 
     private fun checkPermissionAndPickAudio() {
@@ -153,20 +203,24 @@ class SoundSettingsActivity : AppCompatActivity() {
 
     private fun handleSelectedAudioFile(uri: Uri) {
         try {
-            // Take persistable permission
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            contentResolver.takePersistableUriPermission(uri, takeFlags)
-            
-            // Save the URI
-            prefs.customSoundUri = uri.toString()
-            
-            // Reload sound
-            soundManager.loadCustomSound(uri)
-            
-            Toast.makeText(this, "Custom sound loaded successfully", Toast.LENGTH_SHORT).show()
-            
-            // Test the sound
-            soundManager.playKeyClick()
+            try {
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
+            } catch (e: Exception) {
+                // Not all providers support persistable flags; copy is stored in filesDir anyway
+            }
+
+            // Save and load the audio
+            val success = soundManager.saveAndLoadCustomAudio(uri)
+            if (success) {
+                prefs.selectedSoundType = SoundManager.SoundType.CUSTOM_AUDIO.name
+                findViewById<RadioButton>(R.id.rb_sound_custom)?.isChecked = true
+                updateCustomSoundStatus()
+                Toast.makeText(this, "Custom sound loaded successfully!", Toast.LENGTH_SHORT).show()
+                soundManager.playKeyClick()
+            } else {
+                Toast.makeText(this, "Failed to load custom audio file", Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
             Toast.makeText(this, "Error loading sound: ${e.message}", Toast.LENGTH_SHORT).show()
         }

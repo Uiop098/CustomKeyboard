@@ -4,9 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.customkeyboard.R
 
@@ -19,6 +20,10 @@ class ClipAdapter(
     enum class Action { PASTE, EDIT, PIN, DELETE, COPY }
 
     private var filteredItems = items
+    private val themedInflater: LayoutInflater by lazy {
+        val themedCtx = ContextThemeWrapper(context, R.style.Theme_CustomKeyboard)
+        LayoutInflater.from(themedCtx)
+    }
 
     fun updateItems(newItems: List<ClipboardItem>) {
         items = newItems
@@ -30,17 +35,18 @@ class ClipAdapter(
         if (query.isEmpty()) {
             filteredItems = items
         } else {
+            val lower = query.lowercase()
             filteredItems = items.filter { item ->
-                item.text.lowercase().contains(query.lowercase()) ||
-                item.label.lowercase().contains(query.lowercase()) ||
-                item.category.lowercase().contains(query.lowercase())
+                item.text.lowercase().contains(lower) ||
+                item.label.lowercase().contains(lower) ||
+                item.category.lowercase().contains(lower)
             }
         }
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClipViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_clipboard, parent, false)
+        val view = themedInflater.inflate(R.layout.item_clipboard, parent, false)
         return ClipViewHolder(view)
     }
 
@@ -54,26 +60,26 @@ class ClipAdapter(
     inner class ClipViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val tvPreview: TextView = view.findViewById(R.id.tv_preview)
         private val tvMeta: TextView = view.findViewById(R.id.tv_meta)
-        private val ivPin: ImageButton = view.findViewById(R.id.iv_pin)
-        private val ivMenu: ImageButton = view.findViewById(R.id.iv_menu)
+        private val ivPin: ImageView = view.findViewById(R.id.iv_pin)
+        private val ivMenu: ImageView = view.findViewById(R.id.iv_menu)
         private val ivCategory: TextView = view.findViewById(R.id.tv_category)
 
         fun bind(item: ClipboardItem) {
             tvPreview.text = item.getDisplayText()
-            
+
             val timeAgo = getTimeAgo(item.timestamp)
             val pinnedText = if (item.isPinned) " 📌" else ""
             tvMeta.text = "$timeAgo$pinnedText"
-            
-            ivCategory.text = item.category
+
+            ivCategory.text = item.category.ifEmpty { "General" }
             ivPin.setImageResource(if (item.isPinned) R.drawable.ic_pin_filled else R.drawable.ic_pin_outline)
             ivPin.setOnClickListener { onAction(item, Action.PIN) }
-            
+
             ivMenu.setOnClickListener { showMenu(it, item) }
-            
+
             // Tap to paste
             itemView.setOnClickListener { onAction(item, Action.PASTE) }
-            
+
             // Long press for menu
             itemView.setOnLongClickListener {
                 showMenu(itemView, item)
@@ -82,23 +88,27 @@ class ClipAdapter(
         }
 
         private fun showMenu(anchor: View, item: ClipboardItem) {
-            val menu = PopupMenu(context, anchor)
-            menu.menu.add(0, 0, 0, "Paste").setOnMenuItemClickListener {
-                onAction(item, Action.PASTE); true
+            try {
+                val menu = PopupMenu(ContextThemeWrapper(context, R.style.Theme_CustomKeyboard), anchor)
+                menu.menu.add(0, 0, 0, "Paste").setOnMenuItemClickListener {
+                    onAction(item, Action.PASTE); true
+                }
+                menu.menu.add(0, 1, 1, "Edit").setOnMenuItemClickListener {
+                    onAction(item, Action.EDIT); true
+                }
+                menu.menu.add(0, 2, 2, if (item.isPinned) "Unpin" else "Pin").setOnMenuItemClickListener {
+                    onAction(item, Action.PIN); true
+                }
+                menu.menu.add(0, 3, 3, "Copy to System Clipboard").setOnMenuItemClickListener {
+                    onAction(item, Action.COPY); true
+                }
+                menu.menu.add(0, 4, 4, "Delete").setOnMenuItemClickListener {
+                    onAction(item, Action.DELETE); true
+                }
+                menu.show()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            menu.menu.add(0, 1, 1, "Edit").setOnMenuItemClickListener {
-                onAction(item, Action.EDIT); true
-            }
-            menu.menu.add(0, 2, 2, if (item.isPinned) "Unpin" else "Pin").setOnMenuItemClickListener {
-                onAction(item, Action.PIN); true
-            }
-            menu.menu.add(0, 3, 3, "Copy to System Clipboard").setOnMenuItemClickListener {
-                onAction(item, Action.COPY); true
-            }
-            menu.menu.add(0, 4, 4, "Delete").setOnMenuItemClickListener {
-                onAction(item, Action.DELETE); true
-            }
-            menu.show()
         }
 
         private fun getTimeAgo(timestamp: Long): String {
