@@ -28,11 +28,7 @@ class WordPredictor(private val context: Context) {
         loadDictionary()
     }
 
-    fun setPrefs(prefs: SharedPreferences) {
-        this.prefs = prefs
-    }
-
-    fun setPrefsWrapper(prefs: com.example.customkeyboard.data.Prefs) {
+    fun setPrefs(prefs: com.example.customkeyboard.data.Prefs) {
         this.prefs = prefs.prefs
     }
 

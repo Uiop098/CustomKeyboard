@@ -200,7 +200,7 @@ class ClipboardHistoryActivity : AppCompatActivity() {
             }
         }
 
-        builder.setPositiveButton(isEditing ? "Save" : "Add", positiveListener)
+        builder.setPositiveButton(if (isEditing) "Save" else "Add", positiveListener)
         builder.setNegativeButton("Cancel", null)
         builder.show()
     }

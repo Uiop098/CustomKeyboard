@@ -3,9 +3,7 @@ package com.example.customkeyboard.clipboard
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
-import java.util.*
+import java.util.UUID
 
 /**
  * Data model for clipboard items
@@ -28,18 +26,12 @@ data class ClipboardItem(
 }
 
 /**
- * Type token for ArrayList<ClipboardItem> serialization
- */
-private val typeToken = object : TypeToken<ArrayList<ClipboardItem>>() {}.type
-
-/**
- * Manages clipboard history with persistence, auto-cleanup, pin, and edit features
+ * Manages clipboard history with persistence, auto-cleanup, pin, search, and import/export features
  */
 class ClipboardManager(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("clipboard_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private val type: Type = typeToken
 
     // Configuration
     private val maxItems = 100
@@ -54,11 +46,11 @@ class ClipboardManager(private val context: Context) {
     }
 
     private fun migrateLegacyData() {
-        // Check if we have legacy data in old format
         val legacyJson = prefs.getString("clipboard_history", null)
-        if (legacyJson != null && legacyJson.isNotEmpty()) {
+        if (!legacyJson.isNullOrEmpty()) {
             try {
-                val legacyItems = gson.fromJson(legacyJson, type) ?: emptyList()
+                val legacyArray = gson.fromJson(legacyJson, Array<ClipboardItem>::class.java)
+                val legacyItems = legacyArray?.toList() ?: emptyList()
                 saveItems(legacyItems)
                 prefs.edit().remove("clipboard_history").apply()
             } catch (e: Exception) {
@@ -71,22 +63,23 @@ class ClipboardManager(private val context: Context) {
      * Get all clipboard items (pinned first, then by timestamp desc)
      */
     fun getItems(): List<ClipboardItem> {
-        if (cachedItems != null) return cachedItems!!
-        
+        cachedItems?.let { return it }
+
         val json = prefs.getString("clipboard_items", null)
-        if (json == null || json.isEmpty()) {
+        if (json.isNullOrEmpty()) {
             cachedItems = emptyList()
             return cachedItems!!
         }
-        
-        try {
-            val items = gson.fromJson(json, type) ?: emptyList()
+
+        return try {
+            val itemsArray = gson.fromJson(json, Array<ClipboardItem>::class.java)
+            val items = itemsArray?.toList() ?: emptyList()
             cachedItems = sortItems(items)
-            return cachedItems!!
+            cachedItems!!
         } catch (e: Exception) {
             e.printStackTrace()
             cachedItems = emptyList()
-            return cachedItems!!
+            cachedItems!!
         }
     }
 
@@ -102,43 +95,48 @@ class ClipboardManager(private val context: Context) {
      */
     fun addItem(text: String): ClipboardItem {
         if (text.trim().isEmpty()) return ClipboardItem(text = "")
-        
+
         val items = getItems().toMutableList()
-        
+
         // Remove exact duplicates
         items.removeAll { it.text == text.trim() }
-        
+
         // Create new item
         val newItem = ClipboardItem(text = text.trim())
         items.add(0, newItem)
-        
+
         // Auto cleanup
         if (autoCleanupEnabled) {
             cleanup(items)
         }
-        
+
         // Enforce max items (keep pinned)
         if (items.size > maxItems) {
             val pinned = items.filter { it.isPinned }
             val unpinned = items.filter { !it.isPinned }
-            val toKeep = pinned + unpinned.take(maxItems - pinned.size)
+            val toKeep = pinned + unpinned.take((maxItems - pinned.size).coerceAtLeast(0))
             saveItems(toKeep)
         } else {
             saveItems(items)
         }
-        
+
         return newItem
     }
 
     /**
      * Update an existing clipboard item (edit text, label, category, pin status)
      */
-    fun updateItem(id: String, newText: String? = null, newLabel: String? = null, 
-                   newCategory: String? = null, newPinned: Boolean? = null): Boolean {
+    fun updateItem(
+        id: String,
+        newText: String? = null,
+        newLabel: String? = null,
+        newCategory: String? = null,
+        newPinned: Boolean? = null
+    ): Boolean {
         val items = getItems().toMutableList()
         val index = items.indexOfFirst { it.id == id }
         if (index == -1) return false
-        
+
         val oldItem = items[index]
         val updatedItem = oldItem.copy(
             text = newText ?: oldItem.text,
@@ -158,7 +156,7 @@ class ClipboardManager(private val context: Context) {
         val items = getItems().toMutableList()
         val index = items.indexOfFirst { it.id == id }
         if (index == -1) return false
-        
+
         val oldItem = items[index]
         items[index] = oldItem.copy(isPinned = !oldItem.isPinned)
         saveItems(items)
@@ -262,29 +260,30 @@ class ClipboardManager(private val context: Context) {
      * Import clipboard history from JSON
      */
     fun importFromJson(json: String): Int {
-        try {
-            val imported = gson.fromJson(json, type) ?: emptyList()
+        return try {
+            val importedArray = gson.fromJson(json, Array<ClipboardItem>::class.java)
+            val imported = importedArray?.toList() ?: emptyList()
             val existing = getItems().toMutableList()
-            
+
             // Merge avoiding duplicates
             for (item in imported) {
                 if (!existing.any { it.text == item.text }) {
                     existing.add(0, item)
                 }
             }
-            
+
             if (existing.size > maxItems) {
                 val pinned = existing.filter { it.isPinned }
                 val unpinned = existing.filter { !it.isPinned }
-                saveItems(pinned + unpinned.take(maxItems - pinned.size))
+                saveItems(pinned + unpinned.take((maxItems - pinned.size).coerceAtLeast(0)))
             } else {
                 saveItems(existing)
             }
-            
-            return imported.size
+
+            imported.size
         } catch (e: Exception) {
             e.printStackTrace()
-            return 0
+            0
         }
     }
 }

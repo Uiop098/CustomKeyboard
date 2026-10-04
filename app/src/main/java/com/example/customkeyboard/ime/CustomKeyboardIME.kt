@@ -84,7 +84,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
         swipeDetector = SwipeGestureDetector(
             this,
             keyboardView,
-            onSwipeComplete = { touchPoints ->
+            onSwipeComplete = { touchPoints: List<android.graphics.PointF> ->
                 handleSwipeComplete(touchPoints)
             },
             onGestureDelete = {
@@ -100,7 +100,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         // Initialize word predictor with keyboard view
         wordPredictor.setKeyboardView(keyboardView)
-        wordPredictor.setPrefsWrapper(prefs)
+        wordPredictor.setPrefs(prefs)
 
         setupEmojiPicker(root)
         return root
@@ -181,7 +181,7 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
     private fun handleGestureDelete() {
         val ic = currentInputConnection ?: return
         // Delete previous word
-        val surroundingText = ic.getSurroundingText(100, 0)
+        val surroundingText = ic.getTextBeforeCursor(100, 0)
         val text = surroundingText?.toString() ?: ""
         val words = text.trim().split("\\s+".toRegex())
         if (words.isNotEmpty()) {
@@ -218,17 +218,19 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
 
         val predictedWord = wordPredictor.predict(touchPoints)
         if (predictedWord != null && predictedWord.isNotEmpty()) {
-            val ic = currentInputConnection ?: return
-            // Always add space before the word for simplicity
-            // (getSurroundingText has Kotlin compiler issues in CI)
-            val finalText = " $predictedWord"
-            ic.commitText(finalText, 1)
-            playFeedback(SoundManager.SoundType.CLICK_MECHANICAL)
-            
-            // Show feedback
-            showSwipeFeedback(predictedWord)
+            val ic = currentInputConnection
+            if (ic != null) {
+                // Always add space before the word for simplicity
+                // (getSurroundingText has Kotlin compiler issues in CI)
+                val finalText = " $predictedWord"
+                ic.commitText(finalText, 1)
+                playFeedback(SoundManager.SoundType.CLICK_MECHANICAL)
+
+                // Show feedback
+                showSwipeFeedback(predictedWord)
+            }
         }
-        
+
         // Clear swipe trail
         keyboardView.clearSwipe()
     }
@@ -309,10 +311,11 @@ class CustomKeyboardIME : InputMethodService(), KeyboardView.OnKeyboardActionLis
                 // Show a simple dialog with the symbols
                 val builder = android.app.AlertDialog.Builder(this)
                 builder.setTitle("Select symbol for ${keyCode.toChar()}")
-                val symbolArray = symbols.toCharArray().map { it.toString() }.toTypedArray()
-                builder.setItems(symbolArray) { _, which ->
+                val symbolList = symbols.toString().map { it.toString() }
+                val symbolArray: Array<CharSequence> = symbolList.map { it as CharSequence }.toTypedArray()
+                builder.setItems(symbolArray) { dialog, which ->
                     val selectedSymbol = symbols[which].toString()
-                    val ic = currentInputConnection ?: return
+                    val ic = currentInputConnection ?: return@setItems
                     ic.commitText(selectedSymbol, 1)
                     playFeedback(SoundManager.SoundType.CLICK_POP)
                 }
